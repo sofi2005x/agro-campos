@@ -1,0 +1,26 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        # Ruta para el microservicio de Campos y Lotes
+        - id: campos-service-route
+          uri: http://campos-service:8082
+          predicates:
+            - Path=/api/v1/campos/**
+
+        # Ruta pre-configurada para el microservicio de Labores
+        - id: labores-service-route
+          uri: http://labores-service:8083
+          predicates:
+            - Path=/api/v1/labores/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
