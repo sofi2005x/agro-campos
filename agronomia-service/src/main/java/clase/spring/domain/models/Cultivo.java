@@ -1,16 +1,20 @@
-package clase.spring.models;
+package clase.spring.domain.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Table(name = "cultivos")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Cultivo {
 
@@ -22,13 +26,21 @@ public class Cultivo {
     @Column(nullable = false, unique = true, length = 80)
     private String nombre; // Ej: Soja, Maíz, Trigo, Girasol
 
-    // Suelos donde este cultivo puede sembrarse (ej: Soja es apta para TIPO_1 y TIPO_2)
+    // Suelos donde este cultivo puede sembrarse
     @ElementCollection(targetClass = TipoSuelo.class)
     @CollectionTable(name = "cultivo_suelos_aptos", joinColumns = @JoinColumn(name = "cultivo_id"))
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_suelo")
     @Builder.Default
     private Set<TipoSuelo> suelosAptos = new HashSet<>();
+
+    // Secuencia ordenada de labores por cultivo
+    @ElementCollection
+    @CollectionTable(name = "cultivo_labores", joinColumns = @JoinColumn(name = "cultivo_id"))
+    @OrderColumn(name = "orden")
+    @Column(name = "labor")
+    @Builder.Default
+    private List<String> labores = new ArrayList<>();
 
     /**
      * Regla de negocio: verifica si este cultivo puede sembrarse en un determinado suelo

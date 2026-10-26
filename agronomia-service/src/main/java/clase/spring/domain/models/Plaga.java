@@ -1,18 +1,18 @@
-package clase.spring.models;
+package clase.spring.domain.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Entity
 @Table(name = "plagas")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Plaga {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,12 +21,10 @@ public class Plaga {
     @Column(nullable = false, unique = true, length = 80)
     private String nombre;
 
-    @NotBlank(message = "La descripcion de la plaga es obligatoria")
-    @Column(nullable = false, length = 100)
+    @Column(length = 255)
     private String descripcion;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TipoPlaga tipo;
-
+    private TipoPlaga tipoPlaga;
 }

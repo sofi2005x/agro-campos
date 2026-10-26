@@ -1,4 +1,4 @@
-package clase.spring.models;
+package clase.spring.domain.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -7,18 +7,16 @@ import lombok.*;
 
 @Entity
 @Table(name = "tratamientos")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Tratamiento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @NotBlank(message = "El nombre del tratamiento es obligatorio")
-    @Column(nullable = false, length = 100)
-    private String nombre;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "plaga_id", nullable = false)
@@ -28,7 +26,7 @@ public class Tratamiento {
     @JoinColumn(name = "agroquimico_id", nullable = false)
     private Agroquimico agroquimico;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cultivo_id", nullable = false)
     private Cultivo cultivo;
 
@@ -36,6 +34,7 @@ public class Tratamiento {
     @Column(nullable = false)
     private Double dosisPorHectarea; // Ej: 2.5
 
+    @NotBlank
     @Column(nullable = false, length = 20)
     private String unidadMedida; // Ej: "Litros/ha", "Kg/ha"
 }

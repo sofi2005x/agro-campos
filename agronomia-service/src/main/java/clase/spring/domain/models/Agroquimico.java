@@ -1,4 +1,4 @@
-package clase.spring.models;
+package clase.spring.domain.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -7,8 +7,10 @@ import lombok.*;
 
 @Entity
 @Table(name = "agroquimicos")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Agroquimico {
 

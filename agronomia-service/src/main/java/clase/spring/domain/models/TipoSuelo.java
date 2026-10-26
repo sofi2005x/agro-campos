@@ -1,4 +1,4 @@
-package clase.spring.models;
+package clase.spring.domain.models;
 
 public enum TipoSuelo {
     TIPO_1,
