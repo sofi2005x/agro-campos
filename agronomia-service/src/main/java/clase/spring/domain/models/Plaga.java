@@ -1,4 +1,4 @@
-package clase.spring.domain.models;
+git package clase.spring.domain.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
