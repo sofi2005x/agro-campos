@@ -6,10 +6,15 @@ public enum EstadoLaboreo {
     COMPLETADA;
 
     public boolean puedeCambiarA(EstadoLaboreo nuevo) {
-        return switch (this) {
-            case PENDIENTE -> nuevo == EN_EJECUCION;
-            case EN_EJECUCION -> nuevo == COMPLETADA;
-            case COMPLETADA -> false;
-        };
+        switch (this) {
+            case PENDIENTE:
+                return nuevo == EN_EJECUCION;
+            case EN_EJECUCION:
+                return nuevo == COMPLETADA;
+            case COMPLETADA:
+                return false;
+            default:
+                return false;
+        }
     }
 }
