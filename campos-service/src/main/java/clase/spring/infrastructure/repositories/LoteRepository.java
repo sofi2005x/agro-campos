@@ -1,6 +1,6 @@
-package clase.spring.repositories;
+package clase.spring.infrastructure.repositories;
 
-import clase.spring.models.Lote;
+import clase.spring.domain.models.Lote;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

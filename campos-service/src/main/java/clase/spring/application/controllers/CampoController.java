@@ -1,4 +1,4 @@
-package clase.spring.controllers;
+package clase.spring.application.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -11,8 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import clase.spring.application.dtos.request.CampoRequestDTO;
 import clase.spring.application.dtos.request.LoteRequestDTO;
-import clase.spring.dtos.response.CampoResponseDTO;
-import clase.spring.dtos.response.LoteResponseDTO;
+import clase.spring.application.dtos.response.CampoResponseDTO;
+import clase.spring.application.dtos.response.LoteResponseDTO;
 import clase.spring.application.services.CampoService;
 
 import java.util.List;

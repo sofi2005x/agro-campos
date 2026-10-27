@@ -1,4 +1,4 @@
-package clase.spring.exceptions;
+package clase.spring.domain.exceptions;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {

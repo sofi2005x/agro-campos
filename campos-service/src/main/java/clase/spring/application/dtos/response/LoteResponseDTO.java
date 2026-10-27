@@ -1,7 +1,7 @@
-package clase.spring.dtos.response;
+package clase.spring.application.dtos.response;
 
-import clase.spring.models.Lote;
-import clase.spring.models.TipoSuelo;
+import clase.spring.domain.models.Lote;
+import clase.spring.domain.models.TipoSuelo;
 
 public record LoteResponseDTO(
         Long id,

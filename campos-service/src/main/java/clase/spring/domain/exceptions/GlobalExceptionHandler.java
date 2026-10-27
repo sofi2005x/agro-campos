@@ -1,14 +1,14 @@
-package clase.spring.exceptions;
+package clase.spring.domain.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import clase.spring.domain.exceptions.BusinessRuleException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

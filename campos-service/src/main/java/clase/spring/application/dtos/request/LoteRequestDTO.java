@@ -1,6 +1,6 @@
 package clase.spring.application.dtos.request;
 
-import clase.spring.models.TipoSuelo;
+import clase.spring.domain.models.TipoSuelo;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 

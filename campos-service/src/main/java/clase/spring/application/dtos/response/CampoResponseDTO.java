@@ -1,6 +1,6 @@
-package clase.spring.dtos.response;
+package clase.spring.application.dtos.response;
 
-import clase.spring.models.Campo;
+import clase.spring.domain.models.Campo;
 
 public record CampoResponseDTO(
         Long id,
