@@ -1,5 +1,6 @@
 package clase.spring.models;
 
+import clase.spring.domain.models.Agroquimico;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;

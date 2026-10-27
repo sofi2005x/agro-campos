@@ -9,11 +9,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import clase.spring.dtos.request.CampoRequestDTO;
-import clase.spring.dtos.request.LoteRequestDTO;
+import clase.spring.application.dtos.request.CampoRequestDTO;
+import clase.spring.application.dtos.request.LoteRequestDTO;
 import clase.spring.dtos.response.CampoResponseDTO;
 import clase.spring.dtos.response.LoteResponseDTO;
-import clase.spring.services.CampoService;
+import clase.spring.application.services.CampoService;
 
 import java.util.List;
 

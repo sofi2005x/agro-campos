@@ -1,7 +1,7 @@
-package clase.spring.services;
+package clase.spring.application.services;
 
-import clase.spring.dtos.request.CampoRequestDTO;
-import clase.spring.dtos.request.LoteRequestDTO;
+import clase.spring.application.dtos.request.CampoRequestDTO;
+import clase.spring.application.dtos.request.LoteRequestDTO;
 import clase.spring.dtos.response.CampoResponseDTO;
 import clase.spring.dtos.response.LoteResponseDTO;
 import clase.spring.exceptions.BusinessRuleException;

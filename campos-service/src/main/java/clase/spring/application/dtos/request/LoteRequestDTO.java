@@ -1,4 +1,4 @@
-package clase.spring.dtos.request;
+package clase.spring.application.dtos.request;
 
 import clase.spring.models.TipoSuelo;
 import jakarta.validation.constraints.NotNull;
