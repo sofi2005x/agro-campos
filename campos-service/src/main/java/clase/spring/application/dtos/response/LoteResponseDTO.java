@@ -10,7 +10,8 @@ public record LoteResponseDTO(
         Double latitud,
         Double longitud,
         TipoSuelo tipoSuelo,
-        Long campoId
+        Long campoId,
+        Boolean activo
 ) {
     public static LoteResponseDTO fromEntity(Lote lote) {
         return new LoteResponseDTO(
@@ -20,7 +21,8 @@ public record LoteResponseDTO(
                 lote.getLatitud(),
                 lote.getLongitud(),
                 lote.getTipoSuelo(),
-                lote.getCampo() != null ? lote.getCampo().getId() : null
+                lote.getCampo() != null ? lote.getCampo().getId() : null,
+                lote.getActivo()
         );
     }
 }

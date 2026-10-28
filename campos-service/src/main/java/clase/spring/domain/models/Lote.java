@@ -33,6 +33,10 @@ public class Lote {
     @Column(nullable = false)
     private TipoSuelo tipoSuelo;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean activo = true;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "campo_id", nullable = false)
     @JsonIgnore

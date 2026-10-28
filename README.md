@@ -17,7 +17,7 @@ Backend de microservicios para la **administración de campos agrícolas**, desa
 |---|---|
 | `gateway` (ruteo a `campos-service`) | ✅ Implementado |
 | `campos-service`: alta y consulta de campos y lotes | ✅ Implementado |
-| `campos-service`: modificación y baja de campos y lotes | 🔜 Planificado |
+| `campos-service`: modificación y baja lógica de campos y lotes | ✅ Implementado |
 | `campos-service`: refactor a capas (`application / domain / infrastructure`) | ✅ Implementado |
 | `agronomia-service` | 🔄 En desarrollo (modelo de dominio migrado desde `campos-service`) |
 | Integración con Open-Meteo | 🔜 Planificado |
@@ -220,14 +220,14 @@ Base (por el gateway): `http://localhost:8080`. Directo a cada servicio, usar su
 | `GET` | `/api/v1/campos` | — | `200` + lista | — | ✅ |
 | `GET` | `/api/v1/campos/{id}` | — | `200` + campo | `404` | ✅ |
 | `POST` | `/api/v1/campos` | `CampoRequestDTO` | `201` + campo + header `Location` | `400` (validación, RN-CAM-01) | ✅ |
-| `PUT` | `/api/v1/campos/{id}` | `CampoRequestDTO` | `200` + campo | `400`, `404` | 🔜 |
+| `PUT` | `/api/v1/campos/{id}` | `CampoRequestDTO` | `200` + campo | `400`, `404` | ✅ |
 | `DELETE` | `/api/v1/campos/{id}` | — | `204` | `404` | 🔜 |
 | `GET` | `/api/v1/campos/{id}/lotes` | — | `200` + lista | `404` | ✅ |
-| `GET` | `/api/v1/campos/{id}/lotes/{loteId}` | — | `200` + lote | `404` | 🔜 |
+| `GET` | `/api/v1/campos/{id}/lotes/{loteId}` | — | `200` + lote | `404` | ✅ |
 | `POST` | `/api/v1/campos/{id}/lotes` | `LoteRequestDTO` | `201` + lote | `400` (RN-CAM-02, RN-CAM-03), `404` | ✅ |
-| `PUT` | `/api/v1/campos/{id}/lotes/{loteId}` | `LoteRequestDTO` | `200` + lote | `400`, `404` | 🔜 |
+| `PUT` | `/api/v1/campos/{id}` | `CampoRequestDTO` | `200` + campo | `400`, `404` | ✅ |
 | `PATCH` | `/api/v1/campos/{id}/lotes/{loteId}` | `LotePatchRequest` | `200` + lote | `400`, `404` | 🔜 |
-| `DELETE` | `/api/v1/campos/{id}/lotes/{loteId}` | — | `204` | `404` | 🔜 |
+| `DELETE` | `/api/v1/campos/{id}/lotes/{loteId}` | — | `204` | `404` | ✅ |
 
 `DELETE` es una **baja lógica** (el registro queda inactivo). Así los planes históricos de `proyectos-service` siguen referenciando un lote válido, sin que `campos-service` tenga que consultar a otros servicios. Un lote dado de baja no admite nuevos planes.
 
@@ -455,7 +455,7 @@ Las pruebas de `agronomia-service` y `proyectos-service` (RN-TRA-01, 02 y 04; RN
 - [x] `campos-service`: alta y consulta de campos y lotes (RN-CAM-01, 02 y 03)
 - [x] API Gateway con ruteo a `campos-service`
 - [x] Refactor de `campos-service` a la estructura `application / domain / infrastructure` y limpieza de modelos
-- [ ] Modificación y baja (lógica) de campos y lotes
+- [x] Modificación y baja (lógica) de campos y lotes
 - [x] `agronomia-service`: migrar el modelo de dominio y exponer CRUD de cultivos, plagas, agroquímicos y tratamientos (RN-TRA-01, 02 y 04)
 - [ ] `proyectos-service`: planes de siembra y laboreos (RN-LAB-01 a 04)
 - [ ] Integración con Open-Meteo para controlar fumigaciones (RN-LAB-05)

@@ -27,6 +27,10 @@ public class Campo {
     @Column(nullable = false)
     private Double superficieTotalHas;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean activo = true;
+
     @OneToMany(mappedBy = "campo", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Lote> lotes = new ArrayList<>();
