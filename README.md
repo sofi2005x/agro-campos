@@ -98,40 +98,33 @@ agro-campos/
 Los tres microservicios comparten la misma organización interna. El ejemplo es `campos-service`:
 
 ```
-clase.spring.campos
+clase.spring
 ├── application                          Capa de aplicación: casos de uso y API REST
-│   ├── controller
-│   │   ├── CampoController              usa solo CampoService
-│   │   └── GlobalExceptionHandler       @RestControllerAdvice
-│   ├── request
-│   │   ├── CampoRequest                 datos para crear / reemplazar un campo
-│   │   ├── LoteRequest                  datos para crear / reemplazar un lote
-│   │   └── LotePatchRequest             actualización parcial (todos opcionales)
-│   ├── response
-│   │   ├── CampoResponse                lo que devuelve la API
-│   │   ├── LoteResponse
-│   │   └── ErrorResponse                formato único de error
-│   └── service
-│       ├── CampoService                 interfaz; sus métodos reciben y devuelven DTOs
-│       └── CampoServiceImpl             orquesta: DTO ↔ dominio, reglas y persistencia
-├── domain                               Núcleo del negocio (no conoce DTOs ni HTTP)
-│   ├── exception
-│   │   ├── CampoNoEncontradoException
-│   │   ├── LoteNoEncontradoException
-│   │   └── ReglaNegocioException
-│   ├── model
-│   │   ├── Campo                        agregado: agregarLote(...), actualizarLote(...)
-│   │   ├── Lote                         entidad rica
-│   │   └── TipoSuelo                    enum TIPO_1 ... TIPO_5
-│   └── service
-│       └── CampoDomainService           reglas que no pertenecen a una sola entidad
-└── infrastructure                       Detalles técnicos
-    ├── config                           @Configuration (OpenAPI, RestClient, etc.)
-    └── repository
-        ├── CampoRepository              Spring Data JPA
-        └── LoteRepository
+│   ├── controllers
+│   │   └── CampoController              Endpoints REST para campos y lotes
+│   ├── dtos
+│   │   ├── request
+│   │   │   ├── CampoRequestDTO          Datos de entrada para crear un campo
+│   │   │   └── LoteRequestDTO           Datos de entrada para registrar un lote
+│   │   └── response
+│   │       ├── CampoResponseDTO         Datos expuestos de campo y cantidad de lotes
+│   │       └── LoteResponseDTO          Datos expuestos de lote con su tipo de suelo
+│   └── services
+│       └── CampoService                 Implementación de casos de uso y reglas de negocio
+├── domain                               Núcleo del negocio y entidades JPA
+│   ├── exceptions
+│   │   ├── BusinessRuleException        Excepción 400 para reglas de negocio (RN-CAM)
+│   │   ├── ResourceNotFoundException    Excepción 404 para entidades no encontradas
+│   │   └── GlobalExceptionHandler       @RestControllerAdvice centralizado
+│   └── models
+│       ├── Campo                        Entidad de campo (id, nombre, superficieTotalHas, lotes)
+│       ├── Lote                         Entidad de lote (nroLote, hectareas, tipoSuelo, coords)
+│       └── TipoSuelo                    Enum con los tipos de suelo (TIPO_1 ... TIPO_5)
+└── infrastructure                       Detalles técnicos y persistencia
+    └── repositories
+        ├── CampoRepository              Spring Data JPA (existsByNombreIgnoreCase)
+        └── LoteRepository               Spring Data JPA (existsByCampoIdAndNroLote, findByCampoId)
 ```
-
 Qué cambia en los otros dos servicios:
 
 | Servicio | `domain.model` | `infrastructure` adicional |
@@ -161,18 +154,18 @@ Las reglas únicas se respaldan además con restricciones en la base de datos, c
 
 | Entidad | Descripción |
 |---|---|
-| `Campo` | Nombre y superficie total en hectáreas. Agrupa a sus lotes. |
-| `Lote` | Número de lote, hectáreas, latitud, longitud, tipo de suelo y estado de alta/baja. Pertenece a un campo. |
+| `Campo` | Nombre y superficie total en hectáreas. Relación 1 a N con sus `Lote`s. |
+| `Lote` | Número de lote, hectáreas, coordenadas (latitud/longitud) y `TipoSuelo`. Relación N a 1 con `Campo`. |
+| `TipoSuelo` | Enum con los tipos de suelo (`TIPO_1` a `TIPO_5`) que caracterizan al lote. |
 
 | Regla | Descripción | Dónde se aplica | Estado |
 |---|---|---|---|
-| **RN-CAM-01** Unicidad de nombre | No pueden existir dos campos con el mismo nombre, sin distinguir mayúsculas. | `CampoDomainService` (con la consulta del repositorio) | ✅ |
-| **RN-CAM-02** Control de superficie | La suma de las hectáreas de los lotes no puede exceder la superficie total del campo. | `Campo.agregarLote` / `Campo.actualizarLote` | ✅ |
-| **RN-CAM-03** Unicidad de lote | No puede repetirse el número de lote dentro de un mismo campo. | `Campo.agregarLote` / `Campo.actualizarLote` | ✅ |
+| **RN-CAM-01** Unicidad de nombre | No pueden existir dos campos con el mismo nombre, sin distinguir mayúsculas. | `CampoService.crearCampo` (consulta `existsByNombreIgnoreCase` en `CampoRepository`) | ✅ |
+| **RN-CAM-02** Control de superficie | La suma de las hectáreas de los lotes no puede exceder la superficie total del campo. | `CampoService.agregarLoteACampo` (valida suma de has de lotes vs campo) | ✅ |
+| **RN-CAM-03** Unicidad de lote | No puede repetirse el número de lote dentro de un mismo campo. | `CampoService.agregarLoteACampo` (consulta `existsByCampoIdAndNroLote`) | ✅ |
 
-> Hoy estas tres reglas viven en `CampoService`. El refactor las mueve al dominio.
-
-**Fuera del alcance de este release**: la subdivisión y unión dinámica de lotes. Para este primer release, la gestión territorial contempla el alta, baja, modificación y control de superficie de los lotes. La subdivisión y unión quedó documentada en el [Roadmap](#roadmap) como mejora futura.
+> 📌 **Desacoplamiento completado:**  
+> Se eliminaron del modelo de `campos-service` las entidades de catálogo (`Cultivo`, `Plaga`, `Agroquimico`, `TipoAgroquimico`, `Tratamiento`) ya que fueron migradas a `agronomia-service`. `campos-service` administra de forma autónoma campos, lotes y tipos de suelo.
 
 ### `agronomia-service` — Vademécum fitosanitario y catálogo de cultivos
 
@@ -226,13 +219,13 @@ Base (por el gateway): `http://localhost:8080`. Directo a cada servicio, usar su
 |---|---|---|---|---|---|
 | `GET` | `/api/v1/campos` | — | `200` + lista | — | ✅ |
 | `GET` | `/api/v1/campos/{id}` | — | `200` + campo | `404` | ✅ |
-| `POST` | `/api/v1/campos` | `CampoRequest` | `201` + campo + header `Location` | `400` (validación, RN-CAM-01) | ✅ |
-| `PUT` | `/api/v1/campos/{id}` | `CampoRequest` | `200` + campo | `400`, `404` | 🔜 |
+| `POST` | `/api/v1/campos` | `CampoRequestDTO` | `201` + campo + header `Location` | `400` (validación, RN-CAM-01) | ✅ |
+| `PUT` | `/api/v1/campos/{id}` | `CampoRequestDTO` | `200` + campo | `400`, `404` | 🔜 |
 | `DELETE` | `/api/v1/campos/{id}` | — | `204` | `404` | 🔜 |
 | `GET` | `/api/v1/campos/{id}/lotes` | — | `200` + lista | `404` | ✅ |
 | `GET` | `/api/v1/campos/{id}/lotes/{loteId}` | — | `200` + lote | `404` | 🔜 |
-| `POST` | `/api/v1/campos/{id}/lotes` | `LoteRequest` | `201` + lote | `400` (RN-CAM-02, RN-CAM-03), `404` | ✅ |
-| `PUT` | `/api/v1/campos/{id}/lotes/{loteId}` | `LoteRequest` | `200` + lote | `400`, `404` | 🔜 |
+| `POST` | `/api/v1/campos/{id}/lotes` | `LoteRequestDTO` | `201` + lote | `400` (RN-CAM-02, RN-CAM-03), `404` | ✅ |
+| `PUT` | `/api/v1/campos/{id}/lotes/{loteId}` | `LoteRequestDTO` | `200` + lote | `400`, `404` | 🔜 |
 | `PATCH` | `/api/v1/campos/{id}/lotes/{loteId}` | `LotePatchRequest` | `200` + lote | `400`, `404` | 🔜 |
 | `DELETE` | `/api/v1/campos/{id}/lotes/{loteId}` | — | `204` | `404` | 🔜 |
 
