@@ -18,12 +18,12 @@ Backend de microservicios para la **administración de campos agrícolas**, desa
 | `gateway` (ruteo a `campos-service`) | ✅ Implementado |
 | `campos-service`: alta y consulta de campos y lotes | ✅ Implementado |
 | `campos-service`: modificación y baja de campos y lotes | 🔜 Planificado |
-| `agronomia-service` | 🔜 Planificado (el modelo de dominio ya existe dentro de `campos-service` y se migra) |
-| `proyectos-service` | 🔜 Planificado (hoy el gateway tiene una ruta preconfigurada sin implementar) |
+| `campos-service`: refactor a capas (`application / domain / infrastructure`) | ✅ Implementado |
+| `agronomia-service` | 🔄 En desarrollo (modelo de dominio migrado desde `campos-service`) |
 | Integración con Open-Meteo | 🔜 Planificado |
 | Keycloak, Spring Security y roles | 🔜 Planificado |
 | `bda-commons` (JAR reutilizable) | 🔜 Planificado |
-| Refactor a la estructura de paquetes por capas | 🔜 En curso |
+| `proyectos-service` | 🔄 En desarrollo (puertos y cliente REST para `campos-service` listos) |
 
 ## Arquitectura
 
@@ -89,8 +89,8 @@ agro-campos/
 ├── bda-commons/                 # JAR reutilizable (planificado)
 ├── gateway/
 ├── campos-service/
-├── agronomia-service/           # planificado
-└── proyectos-service/           # planificado
+├── agronomia-service/           # catálogo agronómico (en desarrollo)
+└── proyectos-service/           # planes de siembra (en desarrollo)
 ```
 
 ## Estructura de paquetes (inspirada en DDD)
@@ -461,9 +461,9 @@ Las pruebas de `agronomia-service` y `proyectos-service` (RN-TRA-01, 02 y 04; RN
 
 - [x] `campos-service`: alta y consulta de campos y lotes (RN-CAM-01, 02 y 03)
 - [x] API Gateway con ruteo a `campos-service`
-- [ ] Refactor de `campos-service` a la estructura `application / domain / infrastructure`
+- [x] Refactor de `campos-service` a la estructura `application / domain / infrastructure` y limpieza de modelos
 - [ ] Modificación y baja (lógica) de campos y lotes
-- [ ] `agronomia-service`: migrar el modelo de dominio y exponer CRUD de cultivos, plagas, agroquímicos y tratamientos (RN-TRA-01, 02 y 04)
+- [x] `agronomia-service`: migrar el modelo de dominio y exponer CRUD de cultivos, plagas, agroquímicos y tratamientos (RN-TRA-01, 02 y 04)
 - [ ] `proyectos-service`: planes de siembra y laboreos (RN-LAB-01 a 04)
 - [ ] Integración con Open-Meteo para controlar fumigaciones (RN-LAB-05)
 - [ ] Keycloak, Spring Security en el gateway y en cada servicio, con roles
