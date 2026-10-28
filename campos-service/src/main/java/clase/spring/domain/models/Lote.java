@@ -5,8 +5,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
-import clase.spring.domain.models.TipoSuelo;
-import clase.spring.domain.models.Campo;
 
 @Entity
 @Table(name = "lotes")

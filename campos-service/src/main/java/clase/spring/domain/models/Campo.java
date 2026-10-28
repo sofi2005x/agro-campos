@@ -1,6 +1,5 @@
 package clase.spring.domain.models;
 
-import clase.spring.domain.models.Lote;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;

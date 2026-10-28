@@ -62,7 +62,7 @@ public class CampoService {
             throw new BusinessRuleException("El lote N° " + request.nroLote() + " ya existe en este campo.");
         }
 
-        // Regla 6: Control de superficie (la suma de has de los lotes no puede exceder el campo)
+        // Regla: Control de superficie (la suma de has de los lotes no puede exceder el campo)
         double superficieLotesActuales = campo.getLotes().stream()
                 .mapToDouble(Lote::getHectareas)
                 .sum();

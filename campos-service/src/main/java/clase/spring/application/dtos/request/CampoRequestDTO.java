@@ -12,4 +12,3 @@ public record CampoRequestDTO(
         @Positive(message = "La superficie total debe ser mayor a 0")
         Double superficieTotalHas
 ) {}
-
