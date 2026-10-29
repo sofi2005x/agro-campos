@@ -1,59 +1,51 @@
 package clase.spring.infrastructure.adapters;
 
+import clase.spring.domain.exceptions.ReferenciaNoEncontradaException;
+import clase.spring.domain.exceptions.ServicioNoDisponibleException;
+import clase.spring.domain.models.LoteInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import clase.spring.domain.ports.CamposPort;
-import clase.spring.infrastructure.clients.CampoResponse;
-import clase.spring.infrastructure.exceptions.CampoNoEncontradoException;
-import clase.spring.infrastructure.exceptions.CamposServiceUnavailableException;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatusCode;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
 
+import java.util.Arrays;
+
+/**
+ * Adapter de {@link CamposPort}: consume la API REST de campos-service. Hoy ese servicio solo expone los lotes de un campo
+ * (GET /api/v1/campos/{campoId}/lotes), por eso se busca el lote dentro de esa lista.
+ */
 @Component
 public class CamposRestAdapter implements CamposPort {
 
+    private static final String SERVICIO = "campos-service";
+
     private final RestClient restClient;
 
-    public CamposRestAdapter(
-            RestClient.Builder restClientBuilder,
-            @Value("${services.campos.url}") String camposServiceUrl
-    ) {
-        this.restClient = restClientBuilder
-                .baseUrl(camposServiceUrl)
-                .build();
+    public CamposRestAdapter(@Qualifier("camposRestClient") RestClient restClient) {
+        this.restClient = restClient;
     }
 
     @Override
-    public CampoInfo buscarCampo(Long campoId) {
-        try {
-            CampoResponse response = restClient.get()
-                    .uri("/api/v1/campos/{id}", campoId)
-                    .retrieve()
-                    .onStatus(HttpStatusCode::is4xxClientError,
-                            (request, responseError) -> {
-                                if (responseError.getStatusCode().value() == 404) {
-                                    throw new CampoNoEncontradoException(campoId);
-                                }
-                            })
-                    .body(CampoResponse.class);
+    public LoteInfo obtenerLote(Long campoId, Long loteId) {
+        LoteRemoto[] lotes = LlamadaRemota.ejecutar(SERVICIO, "Campo no encontrado con ID: " + campoId,
+                () -> restClient.get()
+                        .uri("/api/v1/campos/{campoId}/lotes", campoId)
+                        .retrieve()
+                        .body(LoteRemoto[].class));
 
-            if (response == null) {
-                throw new IllegalStateException(
-                        "campos-service devolvió una respuesta vacía"
-                );
-            }
-
-            return new CampoInfo(
-                    response.id(),
-                    response.nombre(),
-                    response.superficieTotalHas(),
-                    response.cantidadLotes()
-            );
-        } catch (RestClientException exception) {
-            throw new CamposServiceUnavailableException(
-                    "No se pudo consultar campos-service", exception
-            );
+        if (lotes == null) {
+            throw new ServicioNoDisponibleException(SERVICIO, "respuesta vacía");
         }
+        return Arrays.stream(lotes)
+                .filter(lote -> loteId.equals(lote.id()))
+                .findFirst()
+                .map(lote -> new LoteInfo(lote.id(), campoId, lote.nroLote(), lote.latitud(), lote.longitud(), lote.tipoSuelo()))
+                .orElseThrow(() -> new ReferenciaNoEncontradaException(
+                        "Lote no encontrado con ID: " + loteId + " en el campo " + campoId));
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    record LoteRemoto(Long id, Integer nroLote, Double latitud, Double longitud, String tipoSuelo) {
     }
 }
