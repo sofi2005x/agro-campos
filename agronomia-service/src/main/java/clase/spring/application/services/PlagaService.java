@@ -21,28 +21,51 @@ public class PlagaService {
     private final PlagaRepository plagaRepository;
 
     public List<PlagaResponse> listar() {
-        return plagaRepository.findAll().stream()
+        return plagaRepository.findByActivoTrue().stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     public PlagaResponse obtenerPorId(Long id) {
-        Plaga plaga = plagaRepository.findById(id)
+        Plaga plaga = plagaRepository.findByIdAndActivoTrue(id)
                 .orElseThrow(() -> new PlagaNoEncontradaException(id));
         return toResponse(plaga);
     }
 
     public PlagaResponse crear(PlagaRequest request) {
-        if (plagaRepository.existsByNombreIgnoreCase(request.getNombre())) {
+        if (plagaRepository.existsByNombreIgnoreCaseAndActivoTrue(request.getNombre())) {
             throw new ReglaNegocioException("Ya existe una plaga con el nombre: " + request.getNombre());
         }
         Plaga plaga = Plaga.builder()
                 .nombre(request.getNombre())
                 .descripcion(request.getDescripcion())
                 .tipoPlaga(request.getTipoPlaga())
+                .activo(true)
                 .build();
         Plaga guardado = plagaRepository.save(plaga);
         return toResponse(guardado);
+    }
+
+    public PlagaResponse actualizar(Long id, PlagaRequest request) {
+        Plaga plaga = plagaRepository.findByIdAndActivoTrue(id)
+                .orElseThrow(() -> new PlagaNoEncontradaException(id));
+
+        if (plagaRepository.existsByNombreIgnoreCaseAndIdNotAndActivoTrue(request.getNombre(), id)) {
+            throw new ReglaNegocioException("Ya existe otra plaga con el nombre: " + request.getNombre());
+        }
+
+        plaga.setNombre(request.getNombre());
+        plaga.setDescripcion(request.getDescripcion());
+        plaga.setTipoPlaga(request.getTipoPlaga());
+
+        return toResponse(plagaRepository.save(plaga));
+    }
+
+    public void eliminar(Long id) {
+        Plaga plaga = plagaRepository.findByIdAndActivoTrue(id)
+                .orElseThrow(() -> new PlagaNoEncontradaException(id));
+        plaga.setActivo(false);
+        plagaRepository.save(plaga);
     }
 
     private PlagaResponse toResponse(Plaga plaga) {

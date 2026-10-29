@@ -18,6 +18,10 @@ public class Agroquimico {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean activo = true;
+
     @NotBlank(message = "El nombre comercial es obligatorio")
     @Column(nullable = false, unique = true, length = 100)
     private String nombreComercial; // Ej: "Glifosato Roundup", "Coragen"

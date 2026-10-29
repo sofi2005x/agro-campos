@@ -22,28 +22,51 @@ public class CultivoService {
     private final CultivoRepository cultivoRepository;
 
     public List<CultivoResponse> listar() {
-        return cultivoRepository.findAll().stream()
+        return cultivoRepository.findByActivoTrue().stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     public CultivoResponse obtenerPorId(Long id) {
-        Cultivo cultivo = cultivoRepository.findById(id)
+        Cultivo cultivo = cultivoRepository.findByIdAndActivoTrue(id)
                 .orElseThrow(() -> new CultivoNoEncontradoException(id));
         return toResponse(cultivo);
     }
 
     public CultivoResponse crear(CultivoRequest request) {
-        if (cultivoRepository.existsByNombreIgnoreCase(request.getNombre())) {
+        if (cultivoRepository.existsByNombreIgnoreCaseAndActivoTrue(request.getNombre())) {
             throw new ReglaNegocioException("Ya existe un cultivo con el nombre: " + request.getNombre());
         }
         Cultivo cultivo = Cultivo.builder()
                 .nombre(request.getNombre())
                 .suelosAptos(request.getSuelosAptos())
                 .labores(request.getLabores() != null ? request.getLabores() : new ArrayList<>())
+                .activo(true)
                 .build();
         Cultivo guardado = cultivoRepository.save(cultivo);
         return toResponse(guardado);
+    }
+
+    public CultivoResponse actualizar(Long id, CultivoRequest request) {
+        Cultivo cultivo = cultivoRepository.findByIdAndActivoTrue(id)
+                .orElseThrow(() -> new CultivoNoEncontradoException(id));
+
+        if (cultivoRepository.existsByNombreIgnoreCaseAndIdNotAndActivoTrue(request.getNombre(), id)) {
+            throw new ReglaNegocioException("Ya existe otro cultivo con el nombre: " + request.getNombre());
+        }
+
+        cultivo.setNombre(request.getNombre());
+        cultivo.setSuelosAptos(request.getSuelosAptos());
+        cultivo.setLabores(request.getLabores() != null ? request.getLabores() : new ArrayList<>());
+
+        return toResponse(cultivoRepository.save(cultivo));
+    }
+
+    public void eliminar(Long id) {
+        Cultivo cultivo = cultivoRepository.findByIdAndActivoTrue(id)
+                .orElseThrow(() -> new CultivoNoEncontradoException(id));
+        cultivo.setActivo(false);
+        cultivoRepository.save(cultivo);
     }
 
     private CultivoResponse toResponse(Cultivo cultivo) {

@@ -22,6 +22,10 @@ public class Cultivo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean activo = true;
+
     @NotBlank(message = "El nombre del cultivo es obligatorio")
     @Column(nullable = false, unique = true, length = 80)
     private String nombre; // Ej: Soja, Maíz, Trigo, Girasol

@@ -40,51 +40,68 @@ public class TratamientoService {
     public List<TratamientoResponse> listar(Long plagaId, Long cultivoId) {
         List<Tratamiento> tratamientos;
         if (plagaId != null && cultivoId != null) {
-            // No hay método combinado, filtramos en memoria si es necesario
-            tratamientos = tratamientoRepository.findAll().stream()
+            tratamientos = tratamientoRepository.findByActivoTrue().stream()
                     .filter(t -> t.getPlaga().getId().equals(plagaId) && t.getCultivo().getId().equals(cultivoId))
                     .collect(Collectors.toList());
         } else if (plagaId != null) {
-            tratamientos = tratamientoRepository.findByPlagaId(plagaId);
+            tratamientos = tratamientoRepository.findByPlagaIdAndActivoTrue(plagaId);
         } else if (cultivoId != null) {
-            tratamientos = tratamientoRepository.findByCultivoId(cultivoId);
+            tratamientos = tratamientoRepository.findByCultivoIdAndActivoTrue(cultivoId);
         } else {
-            tratamientos = tratamientoRepository.findAll();
+            tratamientos = tratamientoRepository.findByActivoTrue();
         }
         return tratamientos.stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     public TratamientoResponse obtenerPorId(Long id) {
-        Tratamiento tratamiento = tratamientoRepository.findById(id)
+        Tratamiento tratamiento = tratamientoRepository.findByIdAndActivoTrue(id)
                 .orElseThrow(() -> new TratamientoNoEncontradoException(id));
         return toResponse(tratamiento);
     }
 
     public TratamientoResponse crear(TratamientoRequest request) {
+        Tratamiento tratamiento = Tratamiento.builder()
+                .activo(true)
+                .build();
+        aplicarDatos(tratamiento, request);
+        Tratamiento guardado = tratamientoRepository.save(tratamiento);
+        return toResponse(guardado);
+    }
+
+    public TratamientoResponse actualizar(Long id, TratamientoRequest request) {
+        Tratamiento tratamiento = tratamientoRepository.findByIdAndActivoTrue(id)
+                .orElseThrow(() -> new TratamientoNoEncontradoException(id));
+        aplicarDatos(tratamiento, request);
+        return toResponse(tratamientoRepository.save(tratamiento));
+    }
+
+    public void eliminar(Long id) {
+        Tratamiento tratamiento = tratamientoRepository.findByIdAndActivoTrue(id)
+                .orElseThrow(() -> new TratamientoNoEncontradoException(id));
+        tratamiento.setActivo(false);
+        tratamientoRepository.save(tratamiento);
+    }
+
+    private void aplicarDatos(Tratamiento tratamiento, TratamientoRequest request) {
         if (request.getDosisPorHectarea() == null || request.getDosisPorHectarea() <= 0) {
             throw new ReglaNegocioException("La dosis por hectárea debe ser estrictamente positiva (> 0)");
         }
 
-        Plaga plaga = plagaRepository.findById(request.getPlagaId())
+        Plaga plaga = plagaRepository.findByIdAndActivoTrue(request.getPlagaId())
                 .orElseThrow(() -> new PlagaNoEncontradaException(request.getPlagaId()));
-        Agroquimico agroquimico = agroquimicoRepository.findById(request.getAgroquimicoId())
+        Agroquimico agroquimico = agroquimicoRepository.findByIdAndActivoTrue(request.getAgroquimicoId())
                 .orElseThrow(() -> new AgroquimicoNoEncontradoException(request.getAgroquimicoId()));
-        Cultivo cultivo = cultivoRepository.findById(request.getCultivoId())
+        Cultivo cultivo = cultivoRepository.findByIdAndActivoTrue(request.getCultivoId())
                 .orElseThrow(() -> new CultivoNoEncontradoException(request.getCultivoId()));
 
         // RN-TRA-04: Coherencia de plaga y químico
         validarCoherencia(plaga, agroquimico);
 
-        Tratamiento tratamiento = Tratamiento.builder()
-                .plaga(plaga)
-                .agroquimico(agroquimico)
-                .cultivo(cultivo)
-                .dosisPorHectarea(request.getDosisPorHectarea())
-                .unidadMedida(request.getUnidadMedida())
-                .build();
-
-        Tratamiento guardado = tratamientoRepository.save(tratamiento);
-        return toResponse(guardado);
+        tratamiento.setPlaga(plaga);
+        tratamiento.setAgroquimico(agroquimico);
+        tratamiento.setCultivo(cultivo);
+        tratamiento.setDosisPorHectarea(request.getDosisPorHectarea());
+        tratamiento.setUnidadMedida(request.getUnidadMedida());
     }
 
     private void validarCoherencia(Plaga plaga, Agroquimico agroquimico) {

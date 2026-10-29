@@ -1,4 +1,4 @@
-package clase.spring.models;
+package clase.spring.domain.models;
 
 public enum TipoPlaga {
     INSECTO,   // Se controla con insecticida

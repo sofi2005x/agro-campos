@@ -1,4 +1,4 @@
-git package clase.spring.domain.models;
+package clase.spring.domain.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -16,6 +16,10 @@ public class Plaga {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean activo = true;
 
     @NotBlank(message = "El nombre de la plaga es obligatorio")
     @Column(nullable = false, unique = true, length = 80)
