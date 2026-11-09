@@ -45,7 +45,66 @@ services:
       retries: 10
       start_period: 40s
 
-  # 3. API Gateway (Puerta de entrada principal: puerto 8080)
+  # 3. Microservicio de Agronomia
+  agronomia-service:
+    build: ./agronomia-service
+    container_name: agronomia-service
+    restart: on-failure
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/agro_agronomia_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=http://keycloak:8080/realms/bda-realm/protocol/openid-connect/certs
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8083/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    networks:
+      - agro-network
+
+  # 4. Microservicio de Proyectos
+  proyectos-service:
+    build: ./proyectos-service
+    container_name: proyectos-service
+    restart: on-failure
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/agro_proyectos_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=http://keycloak:8080/realms/bda-realm/protocol/openid-connect/certs
+      - APP_CAMPOS_BASE_URL=http://campos-service:8082
+      - APP_AGRONOMIA_BASE_URL=http://agronomia-service:8083
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+      campos-service:
+        condition: service_healthy
+      agronomia-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8084/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    networks:
+      - agro-network
+
+
+  # 5. API Gateway (Puerta de entrada principal: puerto 8080)
   api-gateway:
     build: ./gateway
     container_name: api-gateway
@@ -58,10 +117,14 @@ services:
       - PROYECTOS_URL=http://proyectos-service:8084
       - KEYCLOAK_JWK_URI=http://keycloak:8080/realms/bda-realm/protocol/openid-connect/certs
     depends_on:
-      campos-service:
-        condition: service_healthy
       keycloak:
         condition: service_started
+      campos-service:
+        condition: service_healthy
+      agronomia-service:
+        condition: service_healthy
+      proyectos-service:
+        condition: service_healthy
     networks:
       - agro-network
 
