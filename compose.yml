@@ -30,9 +30,12 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/agro_campos_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI=http://keycloak:8080/realms/bda-realm/protocol/openid-connect/certs
     depends_on:
       mysql-db:
         condition: service_healthy
+      keycloak:
+        condition: service_started
     networks:
       - agro-network
     healthcheck:
@@ -49,6 +52,10 @@ services:
     restart: on-failure
     ports:
       - "8080:8080"
+    environment:
+      - CAMPOS_URL=http://campos-service:8082
+      - AGRONOMIA_URL=http://agronomia-service:8083
+      - PROYECTOS_URL=http://proyectos-service:8084
     depends_on:
       campos-service:
         condition: service_healthy
@@ -60,7 +67,9 @@ services:
     image: quay.io/keycloak/keycloak:26.0
     container_name: keycloak
     restart: unless-stopped
-    command: start-dev
+    command: start-dev --import-realm
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
     environment:
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
       - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
