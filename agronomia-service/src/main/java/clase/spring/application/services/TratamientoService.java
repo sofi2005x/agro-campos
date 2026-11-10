@@ -8,13 +8,10 @@ import clase.spring.application.dtos.response.TratamientoResponse;
 import clase.spring.domain.exceptions.AgroquimicoNoEncontradoException;
 import clase.spring.domain.exceptions.CultivoNoEncontradoException;
 import clase.spring.domain.exceptions.PlagaNoEncontradaException;
-import clase.spring.domain.exceptions.ReglaNegocioException;
 import clase.spring.domain.exceptions.TratamientoNoEncontradoException;
 import clase.spring.domain.models.Agroquimico;
 import clase.spring.domain.models.Cultivo;
 import clase.spring.domain.models.Plaga;
-import clase.spring.domain.models.TipoAgroquimico;
-import clase.spring.domain.models.TipoPlaga;
 import clase.spring.domain.models.Tratamiento;
 import clase.spring.infrastructure.repositories.AgroquimicoRepository;
 import clase.spring.infrastructure.repositories.CultivoRepository;
@@ -60,10 +57,12 @@ public class TratamientoService {
     }
 
     public TratamientoResponse crear(TratamientoRequest request) {
-        Tratamiento tratamiento = Tratamiento.builder()
-                .activo(true)
-                .build();
-        aplicarDatos(tratamiento, request);
+        Tratamiento tratamiento = Tratamiento.crear(
+                obtenerPlaga(request.getPlagaId()),
+                obtenerAgroquimico(request.getAgroquimicoId()),
+                obtenerCultivo(request.getCultivoId()),
+                request.getDosisPorHectarea(),
+                request.getUnidadMedida());
         Tratamiento guardado = tratamientoRepository.save(tratamiento);
         return toResponse(guardado);
     }
@@ -71,7 +70,12 @@ public class TratamientoService {
     public TratamientoResponse actualizar(Long id, TratamientoRequest request) {
         Tratamiento tratamiento = tratamientoRepository.findByIdAndActivoTrue(id)
                 .orElseThrow(() -> new TratamientoNoEncontradoException(id));
-        aplicarDatos(tratamiento, request);
+        tratamiento.actualizar(
+                obtenerPlaga(request.getPlagaId()),
+                obtenerAgroquimico(request.getAgroquimicoId()),
+                obtenerCultivo(request.getCultivoId()),
+                request.getDosisPorHectarea(),
+                request.getUnidadMedida());
         return toResponse(tratamientoRepository.save(tratamiento));
     }
 
@@ -82,45 +86,19 @@ public class TratamientoService {
         tratamientoRepository.save(tratamiento);
     }
 
-    private void aplicarDatos(Tratamiento tratamiento, TratamientoRequest request) {
-        if (request.getDosisPorHectarea() == null || request.getDosisPorHectarea() <= 0) {
-            throw new ReglaNegocioException("La dosis por hectárea debe ser estrictamente positiva (> 0)");
-        }
-
-        Plaga plaga = plagaRepository.findByIdAndActivoTrue(request.getPlagaId())
-                .orElseThrow(() -> new PlagaNoEncontradaException(request.getPlagaId()));
-        Agroquimico agroquimico = agroquimicoRepository.findByIdAndActivoTrue(request.getAgroquimicoId())
-                .orElseThrow(() -> new AgroquimicoNoEncontradoException(request.getAgroquimicoId()));
-        Cultivo cultivo = cultivoRepository.findByIdAndActivoTrue(request.getCultivoId())
-                .orElseThrow(() -> new CultivoNoEncontradoException(request.getCultivoId()));
-
-        // RN-TRA-04: Coherencia de plaga y químico
-        validarCoherencia(plaga, agroquimico);
-
-        tratamiento.setPlaga(plaga);
-        tratamiento.setAgroquimico(agroquimico);
-        tratamiento.setCultivo(cultivo);
-        tratamiento.setDosisPorHectarea(request.getDosisPorHectarea());
-        tratamiento.setUnidadMedida(request.getUnidadMedida());
+    private Plaga obtenerPlaga(Long plagaId) {
+        return plagaRepository.findByIdAndActivoTrue(plagaId)
+                .orElseThrow(() -> new PlagaNoEncontradaException(plagaId));
     }
 
-    private void validarCoherencia(Plaga plaga, Agroquimico agroquimico) {
-        TipoPlaga tipoPlaga = plaga.getTipoPlaga();
-        TipoAgroquimico tipoAgro = agroquimico.getTipo();
+    private Agroquimico obtenerAgroquimico(Long agroquimicoId) {
+        return agroquimicoRepository.findByIdAndActivoTrue(agroquimicoId)
+                .orElseThrow(() -> new AgroquimicoNoEncontradoException(agroquimicoId));
+    }
 
-        if (tipoAgro == TipoAgroquimico.FERTILIZANTE) {
-            throw new ReglaNegocioException("Un fertilizante no combate ninguna plaga");
-        }
-
-        if (tipoPlaga == TipoPlaga.INSECTO && tipoAgro != TipoAgroquimico.INSECTICIDA) {
-            throw new ReglaNegocioException("Para plagas de tipo INSECTO debe utilizarse un INSECTICIDA");
-        }
-        if (tipoPlaga == TipoPlaga.HONGO && tipoAgro != TipoAgroquimico.FUNGICIDA) {
-            throw new ReglaNegocioException("Para plagas de tipo HONGO debe utilizarse un FUNGICIDA");
-        }
-        if (tipoPlaga == TipoPlaga.MALEZA && tipoAgro != TipoAgroquimico.HERBICIDA) {
-            throw new ReglaNegocioException("Para plagas de tipo MALEZA debe utilizarse un HERBICIDA");
-        }
+    private Cultivo obtenerCultivo(Long cultivoId) {
+        return cultivoRepository.findByIdAndActivoTrue(cultivoId)
+                .orElseThrow(() -> new CultivoNoEncontradoException(cultivoId));
     }
 
     private TratamientoResponse toResponse(Tratamiento tratamiento) {
