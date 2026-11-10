@@ -21,7 +21,7 @@ Backend de microservicios para la **administración de campos agrícolas**, desa
 | `campos-service`: refactor a capas (`application / domain / infrastructure`) | ✅ Implementado |
 | `agronomia-service` | 🔄 En desarrollo (modelo de dominio migrado desde `campos-service`) |
 | Integración con Open-Meteo | 🔜 Planificado |
-| Keycloak, Spring Security y roles | 🔜 Planificado |
+| Keycloak, Spring Security y roles | ✅ Implementado |
 | `bda-commons` (JAR reutilizable) | 🔜 Planificado |
 | `proyectos-service` | 🔄 En desarrollo (puertos y cliente REST para `campos-service` listos) |
 
@@ -327,12 +327,12 @@ Todos los errores usan el mismo formato (`ErrorResponse`). Los errores de valida
 
 `GlobalExceptionHandler` (en `application.controller`) traduce las excepciones del dominio: `*NoEncontradaException` → `404`, `ReglaNegocioException` → `400`. Un servicio remoto caído se traduce a `503`.
 
-## Seguridad *(planificada)*
+## Seguridad 
 
 - **Keycloak** como Identity Provider, con OIDC y tokens JWT. Realm `bda-realm` y roles `ADMIN`, `AGRONOMO` y `OPERARIO`.
 - El **gateway** valida el JWT (Security Filter) antes de rutear. Cada microservicio **vuelve a validarlo** como Resource Server y autoriza por rol. Solo el gateway se publica hacia afuera; los servicios quedan en la red interna de Docker (zona de confianza).
 
-Roles propuestos:
+Roles:
 
 | Operación | ADMIN | AGRONOMO | OPERARIO |
 |---|:-:|:-:|:-:|
@@ -459,9 +459,9 @@ Las pruebas de `agronomia-service` y `proyectos-service` (RN-TRA-01, 02 y 04; RN
 - [x] `agronomia-service`: migrar el modelo de dominio y exponer CRUD de cultivos, plagas, agroquímicos y tratamientos (RN-TRA-01, 02 y 04)
 - [ ] `proyectos-service`: planes de siembra y laboreos (RN-LAB-01 a 04)
 - [ ] Integración con Open-Meteo para controlar fumigaciones (RN-LAB-05)
-- [ ] Keycloak, Spring Security en el gateway y en cada servicio, con roles
+- [x] Keycloak, Spring Security en el gateway y en cada servicio, con roles
 - [ ] `bda-commons` como dependencia Maven de los tres servicios
-- [ ] Gateway: reemplazar la ruta preconfigurada de `labores-service` por las rutas definitivas
+- [x] Gateway: reemplazar la ruta preconfigurada de `labores-service` por las rutas definitivas
 - [ ] Docker Compose con la solución completa (Keycloak incluido)
 - [ ] Tests unitarios del dominio, de controllers (`@WebMvcTest`) y de repositorios (`@DataJpaTest`)
 - [ ] **Subdivisión y unión dinámica de lotes** (mejora de una versión futura; al unir lotes habrá que exigir el mismo tipo de suelo)
