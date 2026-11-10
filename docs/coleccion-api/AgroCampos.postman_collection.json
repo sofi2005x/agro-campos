@@ -1,0 +1,4137 @@
+{
+  "info": {
+    "_postman_id": "b01e708a-3d8b-4d16-8637-c372e5f6169f",
+    "name": "Agro Campos - API E2E",
+    "description": "Coleccion ejecutable de endpoints y escenarios positivos/negativos de Agro Campos. Ejecutar las carpetas en orden: 00, 01, 02, 03, 04, 05 y, opcionalmente, 06. Ver README.md para variables, autenticacion, datos iniciales y matriz de escenarios.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const token = pm.variables.get(\"access_token\");",
+          "if (token && String(token).trim().length > 0) {",
+          "  pm.request.headers.upsert({ key: \"Authorization\", value: \"Bearer \" + token });",
+          "}",
+          "if (!pm.collectionVariables.get(\"runId\")) { pm.collectionVariables.set(\"runId\", String(Date.now()).slice(-6)); }",
+          "if (!pm.collectionVariables.get(\"fechaSiembra\")) { const d = new Date(); d.setDate(d.getDate() + 7); pm.collectionVariables.set(\"fechaSiembra\", d.toISOString().slice(0,10)); }"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "gatewayUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "camposUrl",
+      "value": "http://localhost:8082",
+      "type": "string"
+    },
+    {
+      "key": "agronomiaUrl",
+      "value": "http://localhost:8083",
+      "type": "string"
+    },
+    {
+      "key": "proyectosUrl",
+      "value": "http://localhost:8084",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "runId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "fechaSiembra",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "campoNombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "campoNombreMayus",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cultivoNombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cultivoMaizNombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "plagaNombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "agroquimicoNombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "agroquimicoRestrictivoNombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "fertilizanteNombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "fungicidaNombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "campoId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "loteId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "loteSinCoordsId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "loteNoAptoId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cultivoId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cultivoMaizId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "plagaId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "agroquimicoId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "agroquimicoRestrictivoId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "fertilizanteId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "fungicidaId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tratamientoId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tratamientoRestrictivoId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tratamientoMaizId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "planId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "laborArarId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "laborSembrarId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "laborFumigarId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "laborCosecharId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "plan2Id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "plan3Id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "planClimaId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "climaArarId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "climaSembrarId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "climaFumigarId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - Preparacion",
+      "item": [
+        {
+          "name": "00.01 Reset de variables y healthcheck de campos-service",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/actuator/health",
+            "description": "Borra los IDs de la ejecucion anterior, genera un runId y una fecha de siembra futura, y comprueba que campos-service este arriba. Ejecutar siempre primero."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const keys = [\"campoId\",\"loteId\",\"loteSinCoordsId\",\"loteNoAptoId\",\"cultivoId\",\"cultivoMaizId\",\"plagaId\",\"agroquimicoId\",\"agroquimicoRestrictivoId\",\"fertilizanteId\",\"fungicidaId\",\"tratamientoId\",\"tratamientoRestrictivoId\",\"tratamientoMaizId\",\"planId\",\"laborArarId\",\"laborSembrarId\",\"laborFumigarId\",\"laborCosecharId\",\"plan2Id\",\"plan3Id\",\"planClimaId\",\"climaArarId\",\"climaSembrarId\",\"climaFumigarId\",\"campoNombre\",\"campoNombreMayus\",\"cultivoNombre\",\"cultivoMaizNombre\",\"plagaNombre\",\"agroquimicoNombre\",\"agroquimicoRestrictivoNombre\",\"fertilizanteNombre\",\"fungicidaNombre\"];",
+                  "keys.forEach(k => pm.collectionVariables.unset(k));",
+                  "pm.collectionVariables.set(\"runId\", String(Date.now()).slice(-6));",
+                  "const d = new Date(); d.setDate(d.getDate() + 7);",
+                  "pm.collectionVariables.set(\"fechaSiembra\", d.toISOString().slice(0,10));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"campos-service responde 200\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"estado UP\", () => pm.expect(b.status).to.eql(\"UP\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "00.02 Healthcheck de agronomia-service",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/actuator/health"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"agronomia-service responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "00.03 Healthcheck de proyectos-service",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/actuator/health"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"proyectos-service responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Healthchecks y reset de variables. Ejecutar siempre primero."
+    },
+    {
+      "name": "01 - Datos iniciales (seed)",
+      "item": [
+        {
+          "name": "01.01 [CAM-SEED] Crear campo base",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"{{campoNombre}}\",\"superficieTotalHas\":120.0}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"campoNombre\", \"Campo E2E \" + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"campoId\", b.id);",
+                  "pm.test(\"campo activo y sin lotes\", () => {",
+                  "  pm.expect(b.activo).to.eql(true);",
+                  "  pm.expect(b.cantidadLotes).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.02 [CAM-SEED] Crear lote con coordenadas (TIPO_2, 40 ha)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nroLote\":1,\"hectareas\":40.0,\"latitud\":-31.4201,\"longitud\":-64.1888,\"tipoSuelo\":\"TIPO_2\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"loteId\", b.id);",
+                  "pm.test(\"lote TIPO_2 con coordenadas\", () => {",
+                  "  pm.expect(b.tipoSuelo).to.eql(\"TIPO_2\");",
+                  "  pm.expect(b.latitud).to.be.a(\"number\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.03 [CAM-SEED] Crear lote sin coordenadas (TIPO_2, 20 ha)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nroLote\":2,\"hectareas\":20.0,\"tipoSuelo\":\"TIPO_2\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"loteSinCoordsId\", b.id);",
+                  "pm.test(\"lote sin coordenadas\", () => {",
+                  "  pm.expect(b.latitud).to.eql(null);",
+                  "  pm.expect(b.longitud).to.eql(null);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.04 [CAM-SEED] Crear lote no apto para soja (TIPO_5, 10 ha)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nroLote\":3,\"hectareas\":10.0,\"latitud\":-31.43,\"longitud\":-64.19,\"tipoSuelo\":\"TIPO_5\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"loteNoAptoId\", b.id);",
+                  "pm.test(\"lote TIPO_5\", () => pm.expect(b.tipoSuelo).to.eql(\"TIPO_5\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.05 [AGR-SEED] Crear cultivo Soja",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/cultivos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"{{cultivoNombre}}\",\"suelosAptos\":[\"TIPO_1\",\"TIPO_2\"],\"labores\":[\"Arar\",\"Sembrar\",\"Fumigar\",\"Cosechar\"]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"cultivoNombre\", \"Soja E2E \" + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"cultivoId\", b.id);",
+                  "pm.test(\"cultivo con 4 labores ordenadas\", () => {",
+                  "  pm.expect(b.labores).to.eql([\"Arar\",\"Sembrar\",\"Fumigar\",\"Cosechar\"]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.06 [AGR-SEED] Crear cultivo Maiz (para tratamiento cruzado)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/cultivos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"{{cultivoMaizNombre}}\",\"suelosAptos\":[\"TIPO_2\",\"TIPO_3\"],\"labores\":[\"Arar\",\"Sembrar\",\"Fumigar\",\"Cosechar\"]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"cultivoMaizNombre\", \"Maiz E2E \" + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"cultivoMaizId\", b.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.07 [AGR-SEED] Crear plaga INSECTO",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/plagas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"{{plagaNombre}}\",\"descripcion\":\"Larva defoliadora\",\"tipoPlaga\":\"INSECTO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"plagaNombre\", \"Oruga E2E \" + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"plagaId\", b.id);",
+                  "pm.test(\"tipo INSECTO\", () => pm.expect(b.tipoPlaga).to.eql(\"INSECTO\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.08 [AGR-SEED] Crear insecticida permisivo (viento 999)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombreComercial\":\"{{agroquimicoNombre}}\",\"principioActivo\":\"Clorantraniliprol\",\"tipo\":\"INSECTICIDA\",\"vientoMaximoPermitidoKmH\":999.0,\"horasLibresDeLluviaRequeridas\":1}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"agroquimicoNombre\", \"Insecticida Permisivo E2E \" + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"agroquimicoId\", b.id);",
+                  "pm.test(\"limites climaticos guardados\", () => {",
+                  "  pm.expect(b.vientoMaximoPermitidoKmH).to.eql(999);",
+                  "  pm.expect(b.horasLibresDeLluviaRequeridas).to.eql(1);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.09 [AGR-SEED] Crear insecticida restrictivo (viento 0.01)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombreComercial\":\"{{agroquimicoRestrictivoNombre}}\",\"principioActivo\":\"Prueba\",\"tipo\":\"INSECTICIDA\",\"vientoMaximoPermitidoKmH\":0.01,\"horasLibresDeLluviaRequeridas\":1}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"agroquimicoRestrictivoNombre\", \"Insecticida Restrictivo E2E \" + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"agroquimicoRestrictivoId\", b.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.10 [AGR-SEED] Crear fertilizante (para RN-TRA-04)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombreComercial\":\"{{fertilizanteNombre}}\",\"principioActivo\":\"NPK\",\"tipo\":\"FERTILIZANTE\",\"vientoMaximoPermitidoKmH\":15.0,\"horasLibresDeLluviaRequeridas\":4}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"fertilizanteNombre\", \"Fertilizante E2E \" + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"fertilizanteId\", b.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.11 [AGR-SEED] Crear fungicida (para RN-TRA-04)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombreComercial\":\"{{fungicidaNombre}}\",\"principioActivo\":\"Azoxistrobina\",\"tipo\":\"FUNGICIDA\",\"vientoMaximoPermitidoKmH\":15.0,\"horasLibresDeLluviaRequeridas\":4}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"fungicidaNombre\", \"Fungicida E2E \" + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"fungicidaId\", b.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.12 [AGR-SEED] Crear tratamiento Soja + insecticida permisivo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"plagaId\":{{plagaId}},\"agroquimicoId\":{{agroquimicoId}},\"cultivoId\":{{cultivoId}},\"dosisPorHectarea\":0.5,\"unidadMedida\":\"Litros/ha\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"tratamientoId\", b.id);",
+                  "pm.test(\"tratamiento con limites del agroquimico\", () => {",
+                  "  pm.expect(b.agroquimico.vientoMaximoPermitidoKmH).to.eql(999);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.13 [AGR-SEED] Crear tratamiento Soja + insecticida restrictivo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"plagaId\":{{plagaId}},\"agroquimicoId\":{{agroquimicoRestrictivoId}},\"cultivoId\":{{cultivoId}},\"dosisPorHectarea\":0.5,\"unidadMedida\":\"Litros/ha\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"tratamientoRestrictivoId\", b.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.14 [AGR-SEED] Crear tratamiento Maiz + insecticida permisivo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"plagaId\":{{plagaId}},\"agroquimicoId\":{{agroquimicoId}},\"cultivoId\":{{cultivoMaizId}},\"dosisPorHectarea\":0.5,\"unidadMedida\":\"Litros/ha\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"tratamientoMaizId\", b.id);"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Crea el campo, lotes, cultivo, plaga, agroquimicos y tratamientos. Los IDs se guardan en variables de coleccion."
+    },
+    {
+      "name": "02 - Campos y lotes",
+      "item": [
+        {
+          "name": "02.01 [CAM+] Listar campos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "const id = Number(pm.collectionVariables.get(\"campoId\"));",
+                  "pm.test(\"incluye el campo creado\", () => pm.expect(b.some(c => c.id === id)).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.02 [CAM+] Obtener campo por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"nombre correcto\", () => pm.expect(b.nombre).to.eql(pm.collectionVariables.get(\"campoNombre\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.03 [CAM+] Actualizar campo (superficie 130)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"{{campoNombre}}\",\"superficieTotalHas\":130.0}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"superficie actualizada\", () => pm.expect(b.superficieTotalHas).to.eql(130));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.04 [CAM+] Listar lotes del campo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"tres lotes activos\", () => pm.expect(b.length).to.eql(3));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.05 [CAM+] Obtener lote por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes/{{loteId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"lote TIPO_2\", () => pm.expect(b.tipoSuelo).to.eql(\"TIPO_2\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.06 [CAM+] Actualizar lote (20 -> 25 ha, sin coordenadas)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes/{{loteSinCoordsId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nroLote\":2,\"hectareas\":25.0,\"tipoSuelo\":\"TIPO_2\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"hectareas actualizadas\", () => pm.expect(b.hectareas).to.eql(25));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.N01 [RN-CAM-01] Crear campo con nombre duplicado (case-insensitive)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"{{campoNombreMayus}}\",\"superficieTotalHas\":50.0}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const n = pm.collectionVariables.get(\"campoNombre\");",
+                  "pm.collectionVariables.set(\"campoNombreMayus\", n.toUpperCase());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"mensaje de unicidad\", () => pm.expect(b.message).to.include(\"Ya existe un campo\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.N02 [VALID] Crear campo con nombre vacio y superficie 0",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"\",\"superficieTotalHas\":0}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"errores por campo\", () => {",
+                  "  pm.expect(b.errors).to.have.property(\"nombre\");",
+                  "  pm.expect(b.errors).to.have.property(\"superficieTotalHas\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.N03 [RN-CAM-03] Repetir numero de lote en el mismo campo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nroLote\":1,\"hectareas\":5.0,\"latitud\":-31.42,\"longitud\":-64.18,\"tipoSuelo\":\"TIPO_2\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"mensaje de lote duplicado\", () => pm.expect(b.message).to.include(\"ya existe\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.N04 [RN-CAM-02] Agregar lote que excede la superficie del campo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nroLote\":99,\"hectareas\":200.0,\"latitud\":-31.42,\"longitud\":-64.18,\"tipoSuelo\":\"TIPO_2\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"mensaje de superficie excedida\", () => pm.expect(b.message).to.include(\"Superficie excedida\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.N05 [RN-CAM-02] Actualizar campo con superficie menor a sus lotes",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"{{campoNombre}}\",\"superficieTotalHas\":1.0}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"mensaje de superficie invalida\", () => pm.expect(b.message).to.include(\"Superficie\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.N06 [RN-CAM-03] Actualizar lote con numero duplicado",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes/{{loteSinCoordsId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nroLote\":1,\"hectareas\":25.0,\"tipoSuelo\":\"TIPO_2\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"mensaje de lote duplicado\", () => pm.expect(b.message).to.include(\"ya existe\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.N07 [404] Obtener campo inexistente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos/999999"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"404 Not Found\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"mensaje de campo no encontrado\", () => pm.expect(pm.response.json().message).to.include(\"Campo no encontrado\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.N08 [404] Obtener lote inexistente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes/999999"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"404 Not Found\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Escenarios positivos y negativos de RN-CAM-01, RN-CAM-02 y RN-CAM-03."
+    },
+    {
+      "name": "03 - Agronomia",
+      "item": [
+        {
+          "name": "03.01 [AGR+] Listar cultivos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/cultivos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "const id = Number(pm.collectionVariables.get(\"cultivoId\"));",
+                  "pm.test(\"incluye el cultivo creado\", () => pm.expect(b.some(c => c.id === id)).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.02 [AGR+] Obtener cultivo con suelos aptos y labores",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/cultivos/{{cultivoId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"suelos y labores\", () => {",
+                  "  pm.expect(b.suelosAptos).to.include(\"TIPO_2\");",
+                  "  pm.expect(b.labores.length).to.eql(4);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.03 [AGR+] Listar plagas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/plagas"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "const id = Number(pm.collectionVariables.get(\"plagaId\"));",
+                  "pm.test(\"incluye la plaga creada\", () => pm.expect(b.some(p => p.id === id)).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.04 [AGR+] Obtener plaga",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/plagas/{{plagaId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"tipo INSECTO\", () => pm.expect(pm.response.json().tipoPlaga).to.eql(\"INSECTO\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.05 [AGR+] Listar agroquimicos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "const id = Number(pm.collectionVariables.get(\"agroquimicoId\"));",
+                  "pm.test(\"incluye el agroquimico creado\", () => pm.expect(b.some(a => a.id === id)).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.06 [AGR+] Obtener agroquimico",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos/{{agroquimicoId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"limites climaticos\", () => pm.expect(pm.response.json().vientoMaximoPermitidoKmH).to.eql(999));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.07 [AGR+] Listar tratamientos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "const id = Number(pm.collectionVariables.get(\"tratamientoId\"));",
+                  "pm.test(\"incluye el tratamiento creado\", () => pm.expect(b.some(t => t.id === id)).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.08 [AGR+] Filtrar tratamientos por plaga y cultivo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos?plagaId={{plagaId}}&cultivoId={{cultivoId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "const id = Number(pm.collectionVariables.get(\"tratamientoId\"));",
+                  "pm.test(\"filtro devuelve el tratamiento\", () => pm.expect(b.some(t => t.id === id)).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.09 [AGR+] Obtener tratamiento con limite climatico",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos/{{tratamientoId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"incluye cultivo y agroquimico\", () => {",
+                  "  pm.expect(b.cultivo.id).to.eql(Number(pm.collectionVariables.get(\"cultivoId\")));",
+                  "  pm.expect(b.agroquimico).to.have.property(\"vientoMaximoPermitidoKmH\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.10 [AGR+] Actualizar plaga",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/plagas/{{plagaId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"{{plagaNombre}}\",\"descripcion\":\"Descripcion actualizada\",\"tipoPlaga\":\"INSECTO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"descripcion actualizada\", () => pm.expect(pm.response.json().descripcion).to.eql(\"Descripcion actualizada\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.N01 [RN-TRA-01] Crear agroquimico con nombre comercial duplicado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombreComercial\":\"{{agroquimicoNombre}}\",\"principioActivo\":\"Otro\",\"tipo\":\"INSECTICIDA\",\"vientoMaximoPermitidoKmH\":20.0,\"horasLibresDeLluviaRequeridas\":2}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"mensaje de unicidad\", () => pm.expect(pm.response.json().mensaje).to.include(\"Ya existe un agroqu\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.N02 [RN-TRA-02] Crear tratamiento con dosis 0",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"plagaId\":{{plagaId}},\"agroquimicoId\":{{agroquimicoId}},\"cultivoId\":{{cultivoId}},\"dosisPorHectarea\":0,\"unidadMedida\":\"Litros/ha\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"error de dosis\", () => pm.expect(JSON.stringify(b)).to.include(\"dosis\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.N03 [RN-TRA-04] Tratamiento con fertilizante",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"plagaId\":{{plagaId}},\"agroquimicoId\":{{fertilizanteId}},\"cultivoId\":{{cultivoId}},\"dosisPorHectarea\":1.0,\"unidadMedida\":\"Kg/ha\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"un fertilizante no combate plagas\", () => pm.expect(pm.response.json().mensaje.toLowerCase()).to.include(\"fertilizante\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.N04 [RN-TRA-04] Plaga INSECTO con FUNGICIDA",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"plagaId\":{{plagaId}},\"agroquimicoId\":{{fungicidaId}},\"cultivoId\":{{cultivoId}},\"dosisPorHectarea\":1.0,\"unidadMedida\":\"Kg/ha\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"exige insecticida\", () => pm.expect(pm.response.json().mensaje).to.include(\"INSECTICIDA\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.N05 [404] Tratamiento con plaga inexistente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"plagaId\":999999,\"agroquimicoId\":{{agroquimicoId}},\"cultivoId\":{{cultivoId}},\"dosisPorHectarea\":1.0,\"unidadMedida\":\"Litros/ha\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"404 Not Found\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"mensaje de plaga no encontrada\", () => pm.expect(pm.response.json().mensaje).to.include(\"Plaga no encontrada\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.N06 [VALID] Crear cultivo sin suelos aptos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/cultivos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"Cultivo sin suelo {{runId}}\",\"suelosAptos\":[],\"labores\":[\"Arar\"]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"error de validacion\", () => pm.expect(pm.response.json().errores).to.have.property(\"suelosAptos\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.N07 [VALID] Crear plaga sin tipo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/plagas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"Plaga sin tipo {{runId}}\",\"descripcion\":\"x\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"error de tipo\", () => pm.expect(pm.response.json().errores).to.have.property(\"tipoPlaga\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.N08 [VALID] Crear tratamiento sin IDs",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"dosisPorHectarea\":1.0,\"unidadMedida\":\"Litros/ha\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "const e = pm.response.json().errores;",
+                  "pm.test(\"faltan referencias\", () => {",
+                  "  pm.expect(e).to.have.property(\"plagaId\");",
+                  "  pm.expect(e).to.have.property(\"agroquimicoId\");",
+                  "  pm.expect(e).to.have.property(\"cultivoId\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.N09 [404] Obtener cultivo inexistente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/cultivos/999999"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"404 Not Found\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.N10 [404] Obtener tratamiento inexistente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos/999999"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"404 Not Found\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "CRUD y escenarios negativos de RN-TRA-01, RN-TRA-02 y RN-TRA-04."
+    },
+    {
+      "name": "04 - Proyectos: proceso principal",
+      "item": [
+        {
+          "name": "04.01 [LAB-01/02+] Crear plan de siembra en lote sin coordenadas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"campoId\":{{campoId}},\"loteId\":{{loteSinCoordsId}},\"cultivoId\":{{cultivoId}},\"fechaSiembraPrevista\":\"{{fechaSiembra}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get(\"fechaSiembra\")) { const d = new Date(); d.setDate(d.getDate() + 7); pm.collectionVariables.set(\"fechaSiembra\", d.toISOString().slice(0,10)); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"planId\", b.id);",
+                  "b.labores.forEach(l => {",
+                  "  if (l.nombre === \"Arar\") pm.collectionVariables.set(\"laborArarId\", l.id);",
+                  "  if (l.nombre === \"Sembrar\") pm.collectionVariables.set(\"laborSembrarId\", l.id);",
+                  "  if (l.nombre === \"Fumigar\") pm.collectionVariables.set(\"laborFumigarId\", l.id);",
+                  "  if (l.nombre === \"Cosechar\") pm.collectionVariables.set(\"laborCosecharId\", l.id);",
+                  "});",
+                  "pm.test(\"plan PLANIFICADO con 4 labores\", () => {",
+                  "  pm.expect(b.estado).to.eql(\"PLANIFICADO\");",
+                  "  pm.expect(b.labores.length).to.eql(4);",
+                  "  pm.expect(b.cultivoNombre).to.eql(pm.collectionVariables.get(\"cultivoNombre\"));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.N01 [RN-LAB-02] Segundo plan activo en el mismo lote",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"campoId\":{{campoId}},\"loteId\":{{loteSinCoordsId}},\"cultivoId\":{{cultivoId}},\"fechaSiembraPrevista\":\"{{fechaSiembra}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"lote ocupado\", () => pm.expect(pm.response.json().mensaje).to.include(\"ya tiene un plan activo\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.N02 [RN-LAB-01] Cultivo no apto para el suelo TIPO_5",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"campoId\":{{campoId}},\"loteId\":{{loteNoAptoId}},\"cultivoId\":{{cultivoId}},\"fechaSiembraPrevista\":\"{{fechaSiembra}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"suelo no apto\", () => pm.expect(pm.response.json().mensaje).to.include(\"no es apto\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.N03 [RN-LAB-03] Iniciar Fumigar fuera de secuencia",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborFumigarId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"EN_EJECUCION\",\"tratamientoId\":{{tratamientoId}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"exige completar la labor anterior\", () => pm.expect(pm.response.json().mensaje).to.include(\"primero debe completarse\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.02 [LAB-03+] Iniciar Arar",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborArarId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"EN_EJECUCION\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "const l = b.labores.find(x => x.id === Number(pm.collectionVariables.get(\"laborArarId\")));",
+                  "pm.test(\"plan EN_CURSO y labor EN_EJECUCION\", () => {",
+                  "  pm.expect(b.estado).to.eql(\"EN_CURSO\");",
+                  "  pm.expect(l.estado).to.eql(\"EN_EJECUCION\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.N04 [LAB-03] Volver una labor a PENDIENTE",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborArarId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"PENDIENTE\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"transicion no permitida\", () => pm.expect(pm.response.json().mensaje).to.include(\"no puede volver a PENDIENTE\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.03 [LAB-03+] Completar Arar",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborArarId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"COMPLETADA\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "const l = b.labores.find(x => x.id === Number(pm.collectionVariables.get(\"laborArarId\")));",
+                  "pm.test(\"labor COMPLETADA\", () => pm.expect(l.estado).to.eql(\"COMPLETADA\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.N05 [LAB-03] Completar Sembrar sin iniciarla",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborSembrarId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"COMPLETADA\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"debe estar EN_EJECUCION\", () => pm.expect(pm.response.json().mensaje).to.include(\"EN_EJECUCION\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.04 [LAB-03+] Iniciar Sembrar",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborSembrarId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"EN_EJECUCION\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"labor EN_EJECUCION\", () => {",
+                  "  const l = pm.response.json().labores.find(x => x.id === Number(pm.collectionVariables.get(\"laborSembrarId\")));",
+                  "  pm.expect(l.estado).to.eql(\"EN_EJECUCION\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.05 [LAB-03+] Completar Sembrar",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborSembrarId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"COMPLETADA\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"labor COMPLETADA\", () => {",
+                  "  const l = pm.response.json().labores.find(x => x.id === Number(pm.collectionVariables.get(\"laborSembrarId\")));",
+                  "  pm.expect(l.estado).to.eql(\"COMPLETADA\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.N06 [RN-LAB-05] Iniciar fumigacion sin tratamientoId",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborFumigarId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"EN_EJECUCION\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"exige tratamientoId\", () => pm.expect(pm.response.json().mensaje).to.include(\"tratamientoId\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.N07 [RN-LAB-05] Fumigar con tratamiento de otro cultivo",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborFumigarId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"EN_EJECUCION\",\"tratamientoId\":{{tratamientoMaizId}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"tratamiento no corresponde\", () => pm.expect(pm.response.json().mensaje).to.include(\"no corresponde al cultivo\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.06 [RN-LAB-05+] Fumigar en lote sin coordenadas (200 + advertencia)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborFumigarId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"EN_EJECUCION\",\"tratamientoId\":{{tratamientoId}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "const l = b.labores.find(x => x.id === Number(pm.collectionVariables.get(\"laborFumigarId\")));",
+                  "pm.test(\"fumigacion iniciada con advertencia\", () => {",
+                  "  pm.expect(l.estado).to.eql(\"EN_EJECUCION\");",
+                  "  pm.expect(l.tratamientoId).to.eql(Number(pm.collectionVariables.get(\"tratamientoId\")));",
+                  "  pm.expect(b.advertencias.join(\" \")).to.include(\"no tiene coordenadas\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.07 [LAB-03+] Completar Fumigar",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborFumigarId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"COMPLETADA\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"fumigacion COMPLETADA\", () => {",
+                  "  const l = pm.response.json().labores.find(x => x.id === Number(pm.collectionVariables.get(\"laborFumigarId\")));",
+                  "  pm.expect(l.estado).to.eql(\"COMPLETADA\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.08 [LAB-03+] Iniciar Cosechar",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborCosecharId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"EN_EJECUCION\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.09 [RN-LAB-04+] Completar Cosechar y finalizar plan",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborCosecharId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"COMPLETADA\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"plan FINALIZADO\", () => pm.expect(b.estado).to.eql(\"FINALIZADO\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.N08 [RN-LAB-04] Cancelar un plan FINALIZADO",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"CANCELADO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"plan finalizado no se cancela\", () => pm.expect(pm.response.json().mensaje).to.include(\"no puede cancelarse\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.N09 [LAB-03] Iniciar labor de un plan FINALIZADO",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborArarId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"EN_EJECUCION\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"plan sin cambios\", () => pm.expect(pm.response.json().mensaje).to.include(\"FINALIZADO\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.10 [PRO+] Obtener plan por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"plan finalizado con 4 labores\", () => {",
+                  "  pm.expect(b.estado).to.eql(\"FINALIZADO\");",
+                  "  pm.expect(b.labores.length).to.eql(4);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.11 [PRO+] Listar planes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "const id = Number(pm.collectionVariables.get(\"planId\"));",
+                  "pm.test(\"incluye el plan\", () => pm.expect(b.some(p => p.id === id)).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.12 [PRO+] Listar planes FINALIZADOS",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes?estado=FINALIZADO"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "const id = Number(pm.collectionVariables.get(\"planId\"));",
+                  "pm.test(\"filtro por estado\", () => pm.expect(b.some(p => p.id === id)).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.N10 [PRO] Listar planes con estado invalido",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes?estado=XYZ"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"parametro invalido\", () => pm.expect(pm.response.json().mensaje).to.include(\"estado\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.13 [RN-LAB-02+] Historico de planes del lote",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/lotes/{{loteSinCoordsId}}/planes"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "const id = Number(pm.collectionVariables.get(\"planId\"));",
+                  "pm.test(\"incluye el plan finalizado\", () => pm.expect(b.some(p => p.id === id)).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.14 [RN-LAB-02+] Crear nuevo plan tras finalizar (lote libre)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"campoId\":{{campoId}},\"loteId\":{{loteSinCoordsId}},\"cultivoId\":{{cultivoId}},\"fechaSiembraPrevista\":\"{{fechaSiembra}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"plan2Id\", b.id);",
+                  "pm.test(\"lote liberado\", () => pm.expect(b.estado).to.eql(\"PLANIFICADO\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.N11 [PRO] Cambiar plan activo a estado distinto de CANCELADO",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{plan2Id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"FINALIZADO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"solo se permite CANCELADO\", () => pm.expect(pm.response.json().mensaje).to.include(\"CANCELADO\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.15 [RN-LAB-02+] Cancelar plan y liberar lote",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{plan2Id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"CANCELADO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"plan CANCELADO\", () => pm.expect(pm.response.json().estado).to.eql(\"CANCELADO\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.16 [RN-LAB-02+] Crear plan tras cancelar (lote libre)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"campoId\":{{campoId}},\"loteId\":{{loteSinCoordsId}},\"cultivoId\":{{cultivoId}},\"fechaSiembraPrevista\":\"{{fechaSiembra}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"plan3Id\", b.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.17 [PRO+] Cancelar plan3",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{plan3Id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"CANCELADO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"plan3 CANCELADO\", () => pm.expect(pm.response.json().estado).to.eql(\"CANCELADO\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.N12 [VALID] Crear plan con fecha pasada",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"campoId\":{{campoId}},\"loteId\":{{loteSinCoordsId}},\"cultivoId\":{{cultivoId}},\"fechaSiembraPrevista\":\"2020-01-01\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"error de fecha\", () => pm.expect(pm.response.json().errores).to.have.property(\"fechaSiembraPrevista\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.N13 [404] Crear plan con lote inexistente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"campoId\":{{campoId}},\"loteId\":999999,\"cultivoId\":{{cultivoId}},\"fechaSiembraPrevista\":\"{{fechaSiembra}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"404 Not Found\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"lote no encontrado\", () => pm.expect(pm.response.json().mensaje).to.include(\"Lote no encontrado\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.N14 [404] Crear plan con cultivo inexistente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"campoId\":{{campoId}},\"loteId\":{{loteSinCoordsId}},\"cultivoId\":999999,\"fechaSiembraPrevista\":\"{{fechaSiembra}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"404 Not Found\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"cultivo no encontrado\", () => pm.expect(pm.response.json().mensaje).to.include(\"Cultivo no encontrado\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Plan de siembra, secuencia de labores, finalizacion por cosecha y liberacion del lote."
+    },
+    {
+      "name": "05 - Integraciones",
+      "item": [
+        {
+          "name": "05.01 [INT+] Crear plan en lote con coordenadas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"campoId\":{{campoId}},\"loteId\":{{loteId}},\"cultivoId\":{{cultivoId}},\"fechaSiembraPrevista\":\"{{fechaSiembra}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"planClimaId\", b.id);",
+                  "b.labores.forEach(l => {",
+                  "  if (l.nombre === \"Arar\") pm.collectionVariables.set(\"climaArarId\", l.id);",
+                  "  if (l.nombre === \"Sembrar\") pm.collectionVariables.set(\"climaSembrarId\", l.id);",
+                  "  if (l.nombre === \"Fumigar\") pm.collectionVariables.set(\"climaFumigarId\", l.id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05.02 [INT] Iniciar Arar (plan clima)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planClimaId}}/labores/{{climaArarId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"EN_EJECUCION\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05.03 [INT] Completar Arar (plan clima)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planClimaId}}/labores/{{climaArarId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"COMPLETADA\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05.04 [INT] Iniciar Sembrar (plan clima)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planClimaId}}/labores/{{climaSembrarId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"EN_EJECUCION\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05.05 [INT] Completar Sembrar (plan clima)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planClimaId}}/labores/{{climaSembrarId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"COMPLETADA\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05.N01 [RN-LAB-05 / INT-OpenMeteo] Fumigar con viento sobre el maximo",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planClimaId}}/labores/{{climaFumigarId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"EN_EJECUCION\",\"tratamientoId\":{{tratamientoRestrictivoId}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Escenario dependiente de Open-Meteo. El agroquimico tiene vientoMaximo 0.01 km/h, por lo que se espera 400 con el pronostico real. Si Open-Meteo no responde, el servicio habilita la fumigacion con 200 y advertencia: en ese caso el test falla y debe repetirse o usarse un stub."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request por viento\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"mensaje de clima\", () => pm.expect(pm.response.json().mensaje).to.include(\"No se puede fumigar\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05.06 [INT] Cancelar plan clima",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planClimaId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"estado\":\"CANCELADO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"plan CANCELADO\", () => pm.expect(pm.response.json().estado).to.eql(\"CANCELADO\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05.07 [INT] Actualizar catalogo: agregar Rastrillar al cultivo",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/cultivos/{{cultivoId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"{{cultivoNombre}}\",\"suelosAptos\":[\"TIPO_1\",\"TIPO_2\"],\"labores\":[\"Arar\",\"Sembrar\",\"Fumigar\",\"Cosechar\",\"Rastrillar\"]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"catalogo actualizado a 5 labores\", () => pm.expect(pm.response.json().labores.length).to.eql(5));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05.08 [INT+] El plan existente conserva la secuencia original",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"el plan no se altera con cambios del catalogo\", () => {",
+                  "  pm.expect(b.labores.length).to.eql(4);",
+                  "  pm.expect(b.labores.map(l => l.nombre)).to.eql([\"Arar\",\"Sembrar\",\"Fumigar\",\"Cosechar\"]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Integracion proyectos-campos-agronomia, Open-Meteo y copia de la secuencia de labores."
+    },
+    {
+      "name": "06 - Limpieza (baja logica)",
+      "item": [
+        {
+          "name": "06.01 [CAM-DEL] Baja logica de lote (no apto)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes/{{loteNoAptoId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"204 No Content\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06.02 [CAM-DEL] Lote dado de baja devuelve 404",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes/{{loteNoAptoId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"404 Not Found\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06.03 [AGR-DEL] Baja logica de tratamiento Soja",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos/{{tratamientoId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"204 No Content\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06.04 [AGR-DEL] Baja logica de tratamiento restrictivo",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos/{{tratamientoRestrictivoId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"204 No Content\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06.05 [AGR-DEL] Baja logica de tratamiento Maiz",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos/{{tratamientoMaizId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"204 No Content\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06.06 [AGR-DEL] Baja logica de plaga",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/plagas/{{plagaId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"204 No Content\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06.07 [AGR-DEL] Baja logica de agroquimico permisivo",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos/{{agroquimicoId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"204 No Content\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06.08 [AGR-DEL] Baja logica de agroquimico restrictivo",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos/{{agroquimicoRestrictivoId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"204 No Content\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06.09 [AGR-DEL] Baja logica de fertilizante",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos/{{fertilizanteId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"204 No Content\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06.10 [AGR-DEL] Baja logica de fungicida",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos/{{fungicidaId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"204 No Content\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06.11 [AGR-DEL] Baja logica de cultivo Soja",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/cultivos/{{cultivoId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"204 No Content\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06.12 [AGR-DEL] Baja logica de cultivo Maiz",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{agronomiaUrl}}/api/v1/agronomia/cultivos/{{cultivoMaizId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"204 No Content\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06.13 [CAM-DEL] Baja logica del campo (arrastra sus lotes)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"204 No Content\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06.14 [CAM-DEL] Campo dado de baja devuelve 404",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"404 Not Found\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Opcional. Da de baja los datos creados para dejar la base limpia. Si se omite, los registros quedan activos."
+    }
+  ]
+}
