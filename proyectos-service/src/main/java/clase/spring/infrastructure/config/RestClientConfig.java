@@ -49,10 +49,6 @@ public class RestClientConfig {
             builder.requestInterceptor(propagarToken());
         }
         return builder.build();
-       // return RestClient.builder()
-        //        .baseUrl(baseUrl)
-          //      .requestFactory(factory)
-            //    .build();
     }
 
     private ClientHttpRequestInterceptor propagarToken() {

@@ -19,11 +19,11 @@ Backend de microservicios para la **administración de campos agrícolas**, desa
 | `campos-service`: alta y consulta de campos y lotes | ✅ Implementado |
 | `campos-service`: modificación y baja lógica de campos y lotes | ✅ Implementado |
 | `campos-service`: refactor a capas (`application / domain / infrastructure`) | ✅ Implementado |
-| `agronomia-service` | 🔄 En desarrollo (modelo de dominio migrado desde `campos-service`) |
-| Integración con Open-Meteo | 🔜 Planificado |
+| `agronomia-service` | ✅ Implementado |
+| Integración con Open-Meteo | ✅ Implementado |
 | Keycloak, Spring Security y roles | ✅ Implementado |
 | `bda-commons` (JAR reutilizable) | 🔜 Planificado |
-| `proyectos-service` | 🔄 En desarrollo (puertos y cliente REST para `campos-service` listos) |
+| `proyectos-service` | ✅ Implementado |
 
 ## Arquitectura
 
@@ -418,6 +418,11 @@ Una base por servicio: `agro_campos_db`, `agro_agronomia_db` y `agro_proyectos_d
 ## Pruebas manuales sugeridas
 
 ```bash
+# Solicitar token (obligatorio para realizar cualquier operacion)
+curl -s -X POST http://localhost:8081/realms/bda-realm/protocol/openid-connect/token \
+    -d "grant_type=password" -d "client_id=agro-campos-client" \
+    -d "username=admin1" -d "password=admin1"
+
 # Crear un campo
 curl -i -X POST http://localhost:8080/api/v1/campos \
   -H "Content-Type: application/json" \
@@ -457,8 +462,8 @@ Las pruebas de `agronomia-service` y `proyectos-service` (RN-TRA-01, 02 y 04; RN
 - [x] Refactor de `campos-service` a la estructura `application / domain / infrastructure` y limpieza de modelos
 - [x] Modificación y baja (lógica) de campos y lotes
 - [x] `agronomia-service`: migrar el modelo de dominio y exponer CRUD de cultivos, plagas, agroquímicos y tratamientos (RN-TRA-01, 02 y 04)
-- [ ] `proyectos-service`: planes de siembra y laboreos (RN-LAB-01 a 04)
-- [ ] Integración con Open-Meteo para controlar fumigaciones (RN-LAB-05)
+- [x] `proyectos-service`: planes de siembra y laboreos (RN-LAB-01 a 04)
+- [x] Integración con Open-Meteo para controlar fumigaciones (RN-LAB-05)
 - [x] Keycloak, Spring Security en el gateway y en cada servicio, con roles
 - [ ] `bda-commons` como dependencia Maven de los tres servicios
 - [x] Gateway: reemplazar la ruta preconfigurada de `labores-service` por las rutas definitivas
