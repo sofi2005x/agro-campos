@@ -1,5 +1,8 @@
 package clase.spring.infrastructure.security;
 
+import clase.bda.commons.security.KeycloakRoleConverter;
+import clase.bda.commons.security.KeycloakSecuritySupport;
+import clase.bda.commons.security.SecurityErrorHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -13,24 +16,17 @@ import org.springframework.security.web.SecurityFilterChain;
 public class KeycloakSecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http,
-                                           SecurityErrorHandler errorHandler) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/health/**", "/swagger-ui/**",
-                                "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+    public SecurityFilterChain filterChain(HttpSecurity http, SecurityErrorHandler errorHandler) throws Exception {
+        KeycloakSecuritySupport.configurarResourceServer(http, errorHandler);
+        http.authorizeHttpRequests(auth -> auth
+                        .requestMatchers(KeycloakSecuritySupport.RUTAS_PUBLICAS).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/agronomia/**")
                         .hasAnyRole("ADMIN", "AGRONOMO", "OPERARIO")
                         .requestMatchers("/api/v1/agronomia/**")
                         .hasAnyRole("ADMIN", "AGRONOMO")
-                        .anyRequest().authenticated())
-                .oauth2ResourceServer(oauth -> oauth
-                        .authenticationEntryPoint(errorHandler)
-                        .accessDeniedHandler(errorHandler)
-                        .jwt(jwt -> jwt.jwtAuthenticationConverter(new KeycloakRoleConverter())));
+                        .anyRequest().authenticated());
 
         return http.build();
     }
+
 }

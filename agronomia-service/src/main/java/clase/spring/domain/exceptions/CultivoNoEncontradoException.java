@@ -1,6 +1,8 @@
 package clase.spring.domain.exceptions;
 
-public class CultivoNoEncontradoException extends RuntimeException {
+import clase.bda.commons.errors.RecursoNoEncontradoException;
+
+public class CultivoNoEncontradoException extends RecursoNoEncontradoException {
     public CultivoNoEncontradoException(Long id) {
         super("Cultivo no encontrado con ID: " + id);
     }

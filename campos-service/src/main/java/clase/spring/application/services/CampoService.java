@@ -1,11 +1,11 @@
 package clase.spring.application.services;
 
+import clase.bda.commons.errors.RecursoNoEncontradoException;
+import clase.bda.commons.errors.ReglaNegocioException;
 import clase.spring.application.dtos.request.CampoRequestDTO;
 import clase.spring.application.dtos.request.LoteRequestDTO;
 import clase.spring.application.dtos.response.CampoResponseDTO;
 import clase.spring.application.dtos.response.LoteResponseDTO;
-import clase.spring.domain.exceptions.BusinessRuleException;
-import clase.spring.domain.exceptions.ResourceNotFoundException;
 import clase.spring.domain.models.Campo;
 import clase.spring.domain.models.Lote;
 import clase.spring.infrastructure.repositories.CampoRepository;
@@ -33,7 +33,7 @@ public class CampoService {
     @Transactional(readOnly = true)
     public CampoResponseDTO buscarPorId(Long id) {
         Campo campo = campoRepository.findByIdAndActivoTrue(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Campo no encontrado con ID: " + id));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Campo no encontrado con ID: " + id));
         return CampoResponseDTO.fromEntity(campo);
     }
 
@@ -41,7 +41,7 @@ public class CampoService {
     public CampoResponseDTO crearCampo(CampoRequestDTO request) {
         // RN-CAM-01: No duplicar nombre de campo
         if (campoRepository.existsByNombreIgnoreCaseAndActivoTrue(request.nombre())) {
-            throw new BusinessRuleException("Ya existe un campo con el nombre: " + request.nombre());
+            throw new ReglaNegocioException("Ya existe un campo con el nombre: " + request.nombre());
         }
 
         Campo campo = Campo.builder()
@@ -56,11 +56,11 @@ public class CampoService {
     @Transactional
     public CampoResponseDTO actualizarCampo(Long id, CampoRequestDTO request) {
         Campo campo = campoRepository.findByIdAndActivoTrue(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Campo no encontrado con ID: " + id));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Campo no encontrado con ID: " + id));
 
         // RN-CAM-01: No duplicar nombre con otro campo existente
         if (campoRepository.existsByNombreIgnoreCaseAndIdNotAndActivoTrue(request.nombre(), id)) {
-            throw new BusinessRuleException("Ya existe otro campo con el nombre: " + request.nombre());
+            throw new ReglaNegocioException("Ya existe otro campo con el nombre: " + request.nombre());
         }
 
         // RN-CAM-02 (en actualización): la superficie total no puede ser menor a la suma de sus lotes activos actuales
@@ -70,7 +70,7 @@ public class CampoService {
                 .sum();
 
         if (request.superficieTotalHas() < superficieLotesActuales) {
-            throw new BusinessRuleException(String.format(
+            throw new ReglaNegocioException(String.format(
                     "Superficie inválida: la nueva superficie (%.2f has) no puede ser menor a la ocupada por sus lotes activos (%.2f has).",
                     request.superficieTotalHas(), superficieLotesActuales
             ));
@@ -85,7 +85,7 @@ public class CampoService {
     @Transactional
     public void eliminarCampo(Long id) {
         Campo campo = campoRepository.findByIdAndActivoTrue(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Campo no encontrado con ID: " + id));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Campo no encontrado con ID: " + id));
 
         // Baja lógica del campo y de todos sus lotes asociados
         campo.setActivo(false);
@@ -98,11 +98,11 @@ public class CampoService {
     @Transactional
     public LoteResponseDTO agregarLoteACampo(Long campoId, LoteRequestDTO request) {
         Campo campo = campoRepository.findByIdAndActivoTrue(campoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Campo no encontrado con ID: " + campoId));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Campo no encontrado con ID: " + campoId));
 
         // RN-CAM-03: No duplicar nro de lote en el mismo campo
         if (loteRepository.existsByCampoIdAndNroLoteAndActivoTrue(campoId, request.nroLote())) {
-            throw new BusinessRuleException("El lote N° " + request.nroLote() + " ya existe en este campo.");
+            throw new ReglaNegocioException("El lote N° " + request.nroLote() + " ya existe en este campo.");
         }
 
         // RN-CAM-02: Control de superficie (la suma de has de lotes activos no puede exceder el campo)
@@ -112,7 +112,7 @@ public class CampoService {
                 .sum();
 
         if (superficieLotesActuales + request.hectareas() > campo.getSuperficieTotalHas()) {
-            throw new BusinessRuleException(String.format(
+            throw new ReglaNegocioException(String.format(
                     "Superficie excedida: el campo tiene %.2f has, lotes ocupan %.2f has y se intentan agregar %.2f has.",
                     campo.getSuperficieTotalHas(), superficieLotesActuales, request.hectareas()
             ));
@@ -137,7 +137,7 @@ public class CampoService {
     @Transactional(readOnly = true)
     public List<LoteResponseDTO> listarLotesDeCampo(Long campoId) {
         if (!campoRepository.existsById(campoId)) {
-            throw new ResourceNotFoundException("Campo no encontrado con ID: " + campoId);
+            throw new RecursoNoEncontradoException("Campo no encontrado con ID: " + campoId);
         }
         return loteRepository.findByCampoIdAndActivoTrue(campoId).stream()
                 .map(LoteResponseDTO::fromEntity)
@@ -147,10 +147,10 @@ public class CampoService {
     @Transactional(readOnly = true)
     public LoteResponseDTO buscarLotePorId(Long campoId, Long loteId) {
         if (!campoRepository.existsById(campoId)) {
-            throw new ResourceNotFoundException("Campo no encontrado con ID: " + campoId);
+            throw new RecursoNoEncontradoException("Campo no encontrado con ID: " + campoId);
         }
         Lote lote = loteRepository.findByIdAndCampoIdAndActivoTrue(loteId, campoId)
-                .orElseThrow(() -> new ResourceNotFoundException(
+                .orElseThrow(() -> new RecursoNoEncontradoException(
                         "Lote no encontrado con ID: " + loteId + " en el campo: " + campoId));
         return LoteResponseDTO.fromEntity(lote);
     }
@@ -158,15 +158,15 @@ public class CampoService {
     @Transactional
     public LoteResponseDTO actualizarLote(Long campoId, Long loteId, LoteRequestDTO request) {
         Campo campo = campoRepository.findByIdAndActivoTrue(campoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Campo no encontrado con ID: " + campoId));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Campo no encontrado con ID: " + campoId));
 
         Lote lote = loteRepository.findByIdAndCampoIdAndActivoTrue(loteId, campoId)
-                .orElseThrow(() -> new ResourceNotFoundException(
+                .orElseThrow(() -> new RecursoNoEncontradoException(
                         "Lote no encontrado con ID: " + loteId + " en el campo: " + campoId));
 
         // RN-CAM-03: No duplicar número de lote con otro lote del mismo campo
         if (loteRepository.existsByCampoIdAndNroLoteAndIdNotAndActivoTrue(campoId, request.nroLote(), loteId)) {
-            throw new BusinessRuleException("El lote N° " + request.nroLote() + " ya existe en este campo.");
+            throw new ReglaNegocioException("El lote N° " + request.nroLote() + " ya existe en este campo.");
         }
 
         // RN-CAM-02: Control de superficie sumando los demás lotes activos
@@ -176,7 +176,7 @@ public class CampoService {
                 .sum();
 
         if (superficieOtrosLotes + request.hectareas() > campo.getSuperficieTotalHas()) {
-            throw new BusinessRuleException(String.format(
+            throw new ReglaNegocioException(String.format(
                     "Superficie excedida: el campo tiene %.2f has, los demás lotes ocupan %.2f has y se intentan asignar %.2f has.",
                     campo.getSuperficieTotalHas(), superficieOtrosLotes, request.hectareas()
             ));
@@ -194,10 +194,10 @@ public class CampoService {
     @Transactional
     public void eliminarLote(Long campoId, Long loteId) {
         if (!campoRepository.existsById(campoId)) {
-            throw new ResourceNotFoundException("Campo no encontrado con ID: " + campoId);
+            throw new RecursoNoEncontradoException("Campo no encontrado con ID: " + campoId);
         }
         Lote lote = loteRepository.findByIdAndCampoIdAndActivoTrue(loteId, campoId)
-                .orElseThrow(() -> new ResourceNotFoundException(
+                .orElseThrow(() -> new RecursoNoEncontradoException(
                         "Lote no encontrado con ID: " + loteId + " en el campo: " + campoId));
 
         // Baja lógica del lote

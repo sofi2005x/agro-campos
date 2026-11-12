@@ -1,6 +1,6 @@
 package clase.spring.domain.models;
 
-import clase.spring.domain.exceptions.ReglaNegocioException;
+import clase.bda.commons.errors.ReglaNegocioException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;

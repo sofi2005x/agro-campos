@@ -1,13 +1,13 @@
 package clase.spring.application.services;
 
+import clase.bda.commons.errors.RecursoNoEncontradoException;
+import clase.bda.commons.errors.ReglaNegocioException;
+import clase.bda.commons.errors.ServicioNoDisponibleException;
 import clase.spring.application.dtos.request.LaborPatchRequest;
 import clase.spring.application.dtos.request.PlanPatchRequest;
 import clase.spring.application.dtos.request.PlanRequest;
 import clase.spring.application.dtos.response.LaborResponse;
 import clase.spring.application.dtos.response.PlanResponse;
-import clase.spring.domain.exceptions.ReferenciaNoEncontradaException;
-import clase.spring.domain.exceptions.ReglaNegocioException;
-import clase.spring.domain.exceptions.ServicioNoDisponibleException;
 import clase.spring.domain.models.*;
 import clase.spring.domain.ports.AgronomiaPort;
 import clase.spring.domain.ports.CamposPort;
@@ -87,7 +87,7 @@ class PlanDeSiembraServiceTest {
         public LoteInfo obtenerLote(Long campoId, Long loteId) {
             LoteInfo lote = lotes.get(loteId);
             if (lote == null) {
-                throw new ReferenciaNoEncontradaException("Lote no encontrado con ID: " + loteId);
+                throw new RecursoNoEncontradoException("Lote no encontrado con ID: " + loteId);
             }
             return lote;
         }
@@ -101,7 +101,7 @@ class PlanDeSiembraServiceTest {
         public CultivoInfo obtenerCultivo(Long cultivoId) {
             CultivoInfo cultivo = cultivos.get(cultivoId);
             if (cultivo == null) {
-                throw new ReferenciaNoEncontradaException("Cultivo no encontrado con ID: " + cultivoId);
+                throw new RecursoNoEncontradoException("Cultivo no encontrado con ID: " + cultivoId);
             }
             return cultivo;
         }
@@ -110,7 +110,7 @@ class PlanDeSiembraServiceTest {
         public TratamientoInfo obtenerTratamiento(Long tratamientoId) {
             TratamientoInfo tratamiento = tratamientos.get(tratamientoId);
             if (tratamiento == null) {
-                throw new ReferenciaNoEncontradaException("Tratamiento no encontrado con ID: " + tratamientoId);
+                throw new RecursoNoEncontradoException("Tratamiento no encontrado con ID: " + tratamientoId);
             }
             return tratamiento;
         }
@@ -223,7 +223,7 @@ class PlanDeSiembraServiceTest {
     void propagaLaFaltaDeLoteComoReferenciaNoEncontrada() {
         campos.lotes.clear();
 
-        assertThrows(ReferenciaNoEncontradaException.class, this::crearPlan);
+        assertThrows(RecursoNoEncontradoException.class, this::crearPlan);
         assertTrue(repositorio.planes.isEmpty());
     }
 

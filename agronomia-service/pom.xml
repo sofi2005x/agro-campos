@@ -99,6 +99,12 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- BDA-Commons - Componente .jar -->
+        <dependency>
+            <groupId>clase.spring</groupId>
+            <artifactId>bda-commons</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>

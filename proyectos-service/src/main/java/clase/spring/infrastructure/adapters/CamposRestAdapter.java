@@ -1,7 +1,7 @@
 package clase.spring.infrastructure.adapters;
 
-import clase.spring.domain.exceptions.ReferenciaNoEncontradaException;
-import clase.spring.domain.exceptions.ServicioNoDisponibleException;
+import clase.bda.commons.errors.RecursoNoEncontradoException;
+import clase.bda.commons.errors.ServicioNoDisponibleException;
 import clase.spring.domain.models.LoteInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import clase.spring.domain.ports.CamposPort;
@@ -41,7 +41,7 @@ public class CamposRestAdapter implements CamposPort {
                 .filter(lote -> loteId.equals(lote.id()))
                 .findFirst()
                 .map(lote -> new LoteInfo(lote.id(), campoId, lote.nroLote(), lote.latitud(), lote.longitud(), lote.tipoSuelo()))
-                .orElseThrow(() -> new ReferenciaNoEncontradaException(
+                .orElseThrow(() -> new RecursoNoEncontradoException(
                         "Lote no encontrado con ID: " + loteId + " en el campo " + campoId));
     }
 

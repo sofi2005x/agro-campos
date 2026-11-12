@@ -1,9 +1,9 @@
 package clase.spring.application.services;
 
+import clase.bda.commons.errors.ReglaNegocioException;
 import clase.spring.application.dtos.request.PlagaRequest;
 import clase.spring.application.dtos.response.PlagaResponse;
 import clase.spring.domain.exceptions.PlagaNoEncontradaException;
-import clase.spring.domain.exceptions.ReglaNegocioException;
 import clase.spring.domain.models.Plaga;
 import clase.spring.infrastructure.repositories.PlagaRepository;
 import lombok.RequiredArgsConstructor;

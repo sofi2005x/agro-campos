@@ -48,12 +48,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Actuator para health check (lo usa el healthcheck del docker-compose) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-
         <!-- Security para keycloak -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

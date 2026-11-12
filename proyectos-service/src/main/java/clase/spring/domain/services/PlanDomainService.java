@@ -1,6 +1,6 @@
 package clase.spring.domain.services;
 
-import clase.spring.domain.exceptions.ReglaNegocioException;
+import clase.bda.commons.errors.ReglaNegocioException;
 import clase.spring.domain.models.CultivoInfo;
 import clase.spring.domain.models.HoraPronostico;
 import clase.spring.domain.models.LoteInfo;

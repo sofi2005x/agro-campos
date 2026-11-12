@@ -1,7 +1,7 @@
 package clase.spring.infrastructure.adapters;
 
-import clase.spring.domain.exceptions.ReferenciaNoEncontradaException;
-import clase.spring.domain.exceptions.ServicioNoDisponibleException;
+import clase.bda.commons.errors.RecursoNoEncontradoException;
+import clase.bda.commons.errors.ServicioNoDisponibleException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
@@ -22,7 +22,7 @@ final class LlamadaRemota {
             return llamada.get();
         } catch (RestClientResponseException ex) {
             if (ex.getStatusCode().value() == 404 && mensajeNoEncontrado != null) {
-                throw new ReferenciaNoEncontradaException(mensajeNoEncontrado);
+                throw new RecursoNoEncontradoException(mensajeNoEncontrado);
             }
             throw new ServicioNoDisponibleException(servicio, ex);
         } catch (RestClientException ex) {

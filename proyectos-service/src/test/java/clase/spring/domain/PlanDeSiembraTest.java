@@ -1,6 +1,6 @@
 package clase.spring.domain;
 
-import clase.spring.domain.exceptions.ReglaNegocioException;
+import clase.bda.commons.errors.ReglaNegocioException;
 import clase.spring.domain.models.EstadoLabor;
 import clase.spring.domain.models.EstadoPlan;
 import clase.spring.domain.models.Labor;

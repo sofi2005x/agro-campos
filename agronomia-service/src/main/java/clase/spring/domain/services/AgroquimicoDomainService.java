@@ -1,6 +1,6 @@
 package clase.spring.domain.services;
 
-import clase.spring.domain.exceptions.ReglaNegocioException;
+import clase.bda.commons.errors.ReglaNegocioException;
 import clase.spring.infrastructure.repositories.AgroquimicoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

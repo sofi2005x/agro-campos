@@ -1,14 +1,13 @@
 package clase.spring.domain.models;
 
+import clase.bda.commons.errors.ReglaNegocioException;
 import clase.spring.domain.exceptions.LaborNoEncontradaException;
-import clase.spring.domain.exceptions.ReglaNegocioException;
 import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 

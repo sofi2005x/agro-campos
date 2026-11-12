@@ -1,6 +1,8 @@
 package clase.spring.domain.exceptions;
 
-public class TratamientoNoEncontradoException extends RuntimeException {
+import clase.bda.commons.errors.RecursoNoEncontradoException;
+
+public class TratamientoNoEncontradoException extends RecursoNoEncontradoException {
     public TratamientoNoEncontradoException(Long id) {
         super("Tratamiento no encontrado con ID: " + id);
     }

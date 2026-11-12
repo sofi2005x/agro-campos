@@ -1,9 +1,9 @@
 package clase.spring.application.services;
 
+import clase.bda.commons.errors.ReglaNegocioException;
 import clase.spring.application.dtos.request.CultivoRequest;
 import clase.spring.application.dtos.response.CultivoResponse;
 import clase.spring.domain.exceptions.CultivoNoEncontradoException;
-import clase.spring.domain.exceptions.ReglaNegocioException;
 import clase.spring.domain.models.Cultivo;
 import clase.spring.infrastructure.repositories.CultivoRepository;
 import lombok.RequiredArgsConstructor;

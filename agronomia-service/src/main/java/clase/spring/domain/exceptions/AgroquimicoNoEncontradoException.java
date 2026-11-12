@@ -1,6 +1,8 @@
 package clase.spring.domain.exceptions;
 
-public class AgroquimicoNoEncontradoException extends RuntimeException {
+import clase.bda.commons.errors.RecursoNoEncontradoException;
+
+public class AgroquimicoNoEncontradoException extends RecursoNoEncontradoException {
     public AgroquimicoNoEncontradoException(Long id) {
         super("Agroquímico no encontrado con ID: " + id);
     }

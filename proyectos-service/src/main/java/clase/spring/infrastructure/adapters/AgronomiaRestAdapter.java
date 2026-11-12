@@ -1,6 +1,6 @@
 package clase.spring.infrastructure.adapters;
 
-import clase.spring.domain.exceptions.ServicioNoDisponibleException;
+import clase.bda.commons.errors.ServicioNoDisponibleException;
 import clase.spring.domain.models.CultivoInfo;
 import clase.spring.domain.models.TratamientoInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

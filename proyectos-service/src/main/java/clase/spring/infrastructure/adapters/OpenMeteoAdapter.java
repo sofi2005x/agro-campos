@@ -1,6 +1,6 @@
 package clase.spring.infrastructure.adapters;
 
-import clase.spring.domain.exceptions.ServicioNoDisponibleException;
+import clase.bda.commons.errors.ServicioNoDisponibleException;
 import clase.spring.domain.models.HoraPronostico;
 import clase.spring.domain.models.PronosticoClima;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
