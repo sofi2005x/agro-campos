@@ -21,7 +21,9 @@ services:
 
   # 2. Microservicio de Campos y Lotes
   campos-service:
-    build: ./campos-service
+    build:
+      context: .
+      dockerfile: campos-service/Dockerfile
     container_name: campos-service
     restart: on-failure
     ports:
@@ -47,7 +49,9 @@ services:
 
   # 3. Microservicio de Agronomia
   agronomia-service:
-    build: ./agronomia-service
+    build:
+      context: .
+      dockerfile: agronomia-service/Dockerfile
     container_name: agronomia-service
     restart: on-failure
     ports:
@@ -73,7 +77,9 @@ services:
 
   # 4. Microservicio de Proyectos
   proyectos-service:
-    build: ./proyectos-service
+    build:
+      context: .
+      dockerfile: proyectos-service/Dockerfile
     container_name: proyectos-service
     restart: on-failure
     ports:

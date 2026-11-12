@@ -26,5 +26,5 @@ COPY --from=build --chown=appuser:appuser /build/target/*.jar app.jar
 
 USER appuser
 
-EXPOSE 8082
+EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -2,13 +2,16 @@
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /build
 
-# Copiar solo el pom primero para cachear las dependencias
-COPY pom.xml .
-RUN mvn dependency:go-offline -B
+# 1) Instalar bda-commons en el repositorio Maven de esta etapa
+COPY bda-commons/pom.xml bda-commons/pom.xml
+COPY bda-commons/src bda-commons/src
+RUN mvn -f bda-commons/pom.xml install -DskipTests -B
 
-# Copiar el código y compilar
-COPY src ./src
-RUN mvn package -DskipTests -B
+# 2) Compilar el servicio (ahora encuentra bda-commons)
+COPY campos-service/pom.xml campos-service/pom.xml
+RUN mvn -f campos-service/pom.xml dependency:go-offline -B
+COPY campos-service/src campos-service/src
+RUN mvn -f campos-service/pom.xml package -DskipTests -B
 
 # ---------- Etapa 2: ejecución ----------
 FROM eclipse-temurin:21-jre
@@ -22,7 +25,7 @@ RUN apt-get update \
 # Usuario sin privilegios
 RUN useradd -r -u 1001 appuser
 
-COPY --from=build --chown=appuser:appuser /build/target/*.jar app.jar
+COPY --from=build --chown=appuser:appuser /build/campos-service/target/*.jar app.jar
 
 USER appuser
 
