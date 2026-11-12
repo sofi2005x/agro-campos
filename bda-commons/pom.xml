@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Solo para heredar las versiones gestionadas de Spring Boot -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.4</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>clase.spring</groupId>
+    <artifactId>bda-commons</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>bda-commons</name>
+    <description>Componente común reutilizable: errores de API unificados y conversor de roles de Keycloak</description>
+
+    <properties>
+        <java.version>21</java.version>
+    </properties>
+
+    <dependencies>
+        <!-- Las anotaciones de autoconfiguración (@AutoConfiguration, @ConditionalOn...) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+
+        <!--
+            Las dependencias "optional" se usan para compilar este JAR pero NO se transmiten a los
+            servicios: cada servicio pone las suyas. Así, usar bda-commons no activa Spring Security ni
+            Web en un servicio que no los tenga (agregar Security sin querer bloquearía todos sus endpoints).
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <!--
+        IMPORTANTE: no se declara spring-boot-maven-plugin. Ese plugin "reempaqueta" el JAR como ejecutable
+        (con las clases dentro de BOOT-INF) y un JAR así no puede usarse como dependencia de otro proyecto.
+        Acá alcanza con el maven-jar-plugin que ya trae el parent.
+    -->
+</project>
