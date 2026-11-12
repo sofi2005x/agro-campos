@@ -1298,7 +1298,7 @@
                 "exec": [
                   "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
                   "const b = pm.response.json();",
-                  "pm.test(\"mensaje de unicidad\", () => pm.expect(b.message).to.include(\"Ya existe un campo\"));"
+                  "pm.test(\"mensaje de unicidad\", () => pm.expect(b.mensaje).to.include(\"Ya existe un campo\"));"
                 ]
               }
             }
@@ -1340,8 +1340,8 @@
                   "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
                   "const b = pm.response.json();",
                   "pm.test(\"errores por campo\", () => {",
-                  "  pm.expect(b.errors).to.have.property(\"nombre\");",
-                  "  pm.expect(b.errors).to.have.property(\"superficieTotalHas\");",
+                  "  pm.expect(b.errores).to.have.property(\"nombre\");",
+                  "  pm.expect(b.errores).to.have.property(\"superficieTotalHas\");",
                   "});"
                 ]
               }
@@ -1383,7 +1383,7 @@
                 "exec": [
                   "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
                   "const b = pm.response.json();",
-                  "pm.test(\"mensaje de lote duplicado\", () => pm.expect(b.message).to.include(\"ya existe\"));"
+                  "pm.test(\"mensaje de lote duplicado\", () => pm.expect(b.mensaje).to.include(\"ya existe\"));"
                 ]
               }
             }
@@ -1424,7 +1424,7 @@
                 "exec": [
                   "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
                   "const b = pm.response.json();",
-                  "pm.test(\"mensaje de superficie excedida\", () => pm.expect(b.message).to.include(\"Superficie excedida\"));"
+                  "pm.test(\"mensaje de superficie excedida\", () => pm.expect(b.mensaje).to.include(\"Superficie excedida\"));"
                 ]
               }
             }
@@ -1465,7 +1465,7 @@
                 "exec": [
                   "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
                   "const b = pm.response.json();",
-                  "pm.test(\"mensaje de superficie invalida\", () => pm.expect(b.message).to.include(\"Superficie\"));"
+                  "pm.test(\"mensaje de superficie invalida\", () => pm.expect(b.mensaje).to.include(\"Superficie\"));"
                 ]
               }
             }
@@ -1506,7 +1506,7 @@
                 "exec": [
                   "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
                   "const b = pm.response.json();",
-                  "pm.test(\"mensaje de lote duplicado\", () => pm.expect(b.message).to.include(\"ya existe\"));"
+                  "pm.test(\"mensaje de lote duplicado\", () => pm.expect(b.mensaje).to.include(\"ya existe\"));"
                 ]
               }
             }
@@ -1532,7 +1532,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"404 Not Found\", () => pm.response.to.have.status(404));",
-                  "pm.test(\"mensaje de campo no encontrado\", () => pm.expect(pm.response.json().message).to.include(\"Campo no encontrado\"));"
+                  "pm.test(\"mensaje de campo no encontrado\", () => pm.expect(pm.response.json().mensaje).to.include(\"Campo no encontrado\"));"
                 ]
               }
             }
