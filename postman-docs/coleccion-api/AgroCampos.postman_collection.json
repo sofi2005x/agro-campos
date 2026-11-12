@@ -14,8 +14,8 @@
       "script": {
         "type": "text/javascript",
         "exec": [
-          "const token = pm.variables.get(\"access_token\");",
-          "if (token && String(token).trim().length > 0) {",
+          "const token = pm.environment.get(\"access_token\");",
+          "if (pm.info.requestName !== \"00.00 - Obtener token Admin\" && token && String(token).trim().length > 0) {",
           "  pm.request.headers.upsert({ key: \"Authorization\", value: \"Bearer \" + token });",
           "}",
           "if (!pm.collectionVariables.get(\"runId\")) { pm.collectionVariables.set(\"runId\", String(Date.now()).slice(-6)); }",
@@ -43,11 +43,6 @@
     {
       "key": "proyectosUrl",
       "value": "http://localhost:8084",
-      "type": "string"
-    },
-    {
-      "key": "access_token",
-      "value": "",
       "type": "string"
     },
     {
@@ -235,6 +230,65 @@
     {
       "name": "00 - Preparacion",
       "item": [
+        {
+          "name": "00.00 - Obtener token Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Token obtenido\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  const response = pm.response.json();",
+                  "  pm.expect(response.access_token).to.be.a(\"string\").and.not.empty;",
+                  "  pm.environment.set(\"access_token\", response.access_token);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "password",
+                  "type": "text"
+                },
+                {
+                  "key": "client_id",
+                  "value": "agro-campos-client",
+                  "type": "text"
+                },
+                {
+                  "key": "username",
+                  "value": "admin1",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "admin1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "http://localhost:8081/realms/bda-realm/protocol/openid-connect/token",
+            "description": "Obtiene un JWT de Keycloak y lo guarda en access_token del Environment activo. Usa credenciales de desarrollo; ajustarlas si difieren."
+          }
+        },
         {
           "name": "00.01 Reset de variables y healthcheck de campos-service",
           "request": {

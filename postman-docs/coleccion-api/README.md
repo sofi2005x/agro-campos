@@ -19,6 +19,7 @@ La colección usa por defecto las URLs directas de cada microservicio, porque el
 | Variable | Valor local | Servicio |
 |---|---|---|
 | `gatewayUrl` | `http://localhost:8080` | API Gateway |
+| `keycloackUrl` | `http://localhost:8081` | Keycloack |
 | `camposUrl` | `http://localhost:8082` | `campos-service` |
 | `agronomiaUrl` | `http://localhost:8083` | `agronomia-service` |
 | `proyectosUrl` | `http://localhost:8084` | `proyectos-service` |
@@ -67,7 +68,8 @@ Los tests guardan los IDs en variables de colección para que las solicitudes si
 
 | Variable | Descripción |
 |---|---|
-| `gatewayUrl` | URL del gateway |
+| `gatewayUrl` | URL del Gateway |
+| `keycloackUrl` | URL de Keycloack |
 | `camposUrl` | URL de `campos-service` |
 | `agronomiaUrl` | URL de `agronomia-service` |
 | `proyectosUrl` | URL de `proyectos-service` |
@@ -115,7 +117,7 @@ POST {{keycloakUrl}}/realms/bda-realm/protocol/openid-connect/token
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=password
-client_id=agro-campos
+client_id=agro-campos-client
 username=<usuario>
 password=<password>
 ```
