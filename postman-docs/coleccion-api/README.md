@@ -4,8 +4,8 @@ Este directorio contiene la entrega de la colección de llamadas a las APIs de *
 
 | Archivo | Contenido |
 |---|---|
-| `AgroCampos.postman_collection.json` | Colección Postman v2.1 con 105 solicitudes organizadas por carpeta |
-| `AgroCampos.local.postman_environment.json` | Variables de entorno para ejecución local |
+| `AgroCampos.postman_collection.json` | Colección Postman v2.1 con 116 solicitudes organizadas por carpeta |
+| `AgroCampos.local.postman_environment.json` | Variables de entorno configuradas para enrutar a través del API Gateway |
 | `README.md` | Este documento: organización, variables, autenticación, datos iniciales, orden y escenarios |
 
 La colección es importable en Postman, Newman o Bruno. En Bruno se puede importar el formato Postman; si se prefiere una colección nativa, se migran las mismas carpetas y variables conservando el orden.
@@ -14,27 +14,23 @@ La colección es importable en Postman, Newman o Bruno. En Bruno se puede import
 
 ## 1. Requisitos y URLs
 
-La colección usa por defecto las URLs directas de cada microservicio, porque el gateway actual solo enruta `/api/v1/campos/**`.
+Siguiendo los lineamientos de arquitectura (Sección 06, 07 y 10 del documento), **todas las peticiones externas pasan obligatoriamente por el API Gateway (puerto 8080)**. Los microservicios quedan confinados en la red interna de Docker (`agro-network`), sin exponer sus puertos hacia el host exterior.
 
-| Variable | Valor local | Servicio |
+| Variable | Valor local | Servicio / Destino |
 |---|---|---|
-| `gatewayUrl` | `http://localhost:8080` | API Gateway |
-| `keycloackUrl` | `http://localhost:8081` | Keycloack |
-| `camposUrl` | `http://localhost:8082` | `campos-service` |
-| `agronomiaUrl` | `http://localhost:8083` | `agronomia-service` |
-| `proyectosUrl` | `http://localhost:8084` | `proyectos-service` |
-| `access_token` | vacío | Token JWT opcional |
+| `gatewayUrl` | `http://localhost:8080` | API Gateway (Único punto de entrada) |
+| `keycloakUrl` | `http://localhost:8081` | Keycloak Identity Provider (OIDC / OAuth 2.0) |
+| `camposUrl` | `http://localhost:8080` | Ruteado por Gateway a `/api/v1/campos/**` |
+| `agronomiaUrl` | `http://localhost:8080` | Ruteado por Gateway a `/api/v1/agronomia/**` |
+| `proyectosUrl` | `http://localhost:8080` | Ruteado por Gateway a `/api/v1/proyectos/**` |
+| `access_token` | *(dinámico)* | Token JWT activo enviado en `Authorization: Bearer` |
+| `token_admin` | *(dinámico)* | Token JWT del usuario Administrador (`admin1`) |
+| `token_agronomo` | *(dinámico)* | Token JWT del usuario Agrónomo (`agronomo1`) |
+| `token_operario` | *(dinámico)* | Token JWT del usuario Operario (`operario1`) |
 
 Prerrequisitos:
-
-1. MySQL 8 disponible.
-2. `campos-service` en el puerto `8082`.
-3. `agronomia-service` en el puerto `8083`.
-4. `proyectos-service` en el puerto `8084`.
-
-El `compose.yml` actual levanta MySQL, `campos-service` y el gateway. Para ejecutar la colección completa hay que levantar también `agronomia-service` y `proyectos-service` con Maven, o agregarlos al compose.
-
-Cuando se agreguen al gateway las rutas de agronomía y proyectos, se pueden cambiar las variables para ejecutar todo a través de `http://localhost:8080`.
+1. Docker y Docker Compose instalados.
+2. Ejecutar `docker compose -f compose.yml up --build` desde la raíz. Esto levanta MySQL (3306), Keycloak (8081), los tres microservicios en la red interna y el API Gateway (8080).
 
 ---
 
@@ -44,19 +40,21 @@ Las carpetas se ejecutan en este orden:
 
 | Orden | Carpeta | Solicitudes | Propósito |
 |---|---|---|---|
-| 00 | Preparación | 3 | Healthchecks y reset de variables de ejecución |
+| 00 | Preparación | 9 | Obtención de tokens para los 3 roles, switch de rol, healthchecks y reset de variables |
 | 01 | Datos iniciales (seed) | 14 | Campo, lotes, cultivos, plaga, agroquímicos y tratamientos |
-| 02 | Campos y lotes | 14 | Escenarios de `campos-service` |
-| 03 | Agronomía | 20 | Escenarios de catálogo y tratamientos |
+| 02 | Campos y lotes | 14 | Escenarios de `campos-service` (a través del Gateway) |
+| 03 | Agronomía | 20 | Escenarios de catálogo y tratamientos (a través del Gateway) |
 | 04 | Proyectos: proceso principal | 31 | Plan de siembra, labores, cosecha y liberación del lote |
 | 05 | Integraciones | 9 | Comunicación entre servicios, Open-Meteo y copia de labores |
 | 06 | Limpieza (baja lógica) | 14 | Bajas lógicas opcionales |
+| 07 | Seguridad y Roles (RBAC) | 6 | Pruebas de acceso permitido, 403 Forbidden por rol y 401 Unauthorized sin token |
 
 Cada solicitud lleva un código en el nombre, por ejemplo:
-
+- `00.00a - Obtener token ADMIN (admin1)`
 - `02.N01 [RN-CAM-01] Crear campo con nombre duplicado (case-insensitive)`
 - `04.09 [RN-LAB-04+] Completar Cosechar y finalizar plan`
 - `05.N01 [RN-LAB-05 / INT-OpenMeteo] Fumigar con viento sobre el máximo`
+- `07.02 [RBAC-02 / 403 Forbidden] Operario intenta crear campo por Gateway (403 Forbidden)`
 
 Los tests guardan los IDs en variables de colección para que las solicitudes siguientes usen datos reales y no IDs fijos.
 
@@ -68,12 +66,15 @@ Los tests guardan los IDs en variables de colección para que las solicitudes si
 
 | Variable | Descripción |
 |---|---|
-| `gatewayUrl` | URL del Gateway |
-| `keycloackUrl` | URL de Keycloack |
-| `camposUrl` | URL de `campos-service` |
-| `agronomiaUrl` | URL de `agronomia-service` |
-| `proyectosUrl` | URL de `proyectos-service` |
-| `access_token` | Token JWT cuando se habilite Keycloak |
+| `gatewayUrl` | URL del Gateway (`http://localhost:8080`) |
+| `keycloakUrl` | URL de Keycloak (`http://localhost:8081`) |
+| `camposUrl` | URL base para endpoints de campos (`http://localhost:8080`) |
+| `agronomiaUrl` | URL base para endpoints de agronomía (`http://localhost:8080`) |
+| `proyectosUrl` | URL base para endpoints de proyectos (`http://localhost:8080`) |
+| `access_token` | Token JWT actualmente en uso para las peticiones |
+| `token_admin` | Token del usuario `admin1` (Rol ADMIN) |
+| `token_agronomo` | Token del usuario `agronomo1` (Rol AGRONOMO) |
+| `token_operario` | Token del usuario `operario1` (Rol OPERARIO) |
 
 ### Variables generadas durante la ejecución
 
@@ -96,43 +97,45 @@ La solicitud `00.01` reinicia los IDs y regenera `runId` y `fechaSiembra`. Se de
 
 ---
 
-## 4. Autenticación
+## 4. Autenticación y Control de Acceso (RBAC)
 
-### Estado actual
+### Configuración de Keycloak
+El sistema utiliza **Keycloak 26.0** configurado con el realm `bda-realm` y el cliente público `agro-campos-client` con Direct Access Grants (Resource Owner Password Credentials).
 
-El repositorio todavía no tiene Keycloak ni Spring Security implementados. La colección funciona sin token.
+Usuarios de prueba provisionados:
+| Usuario | Contraseña | Rol en Keycloak |
+|---|---|---|
+| `admin1` | `admin1` | `ADMIN` |
+| `agronomo1` | `agronomo1` | `AGRONOMO` |
+| `operario1` | `operario1` | `OPERARIO` |
 
-A nivel de colección hay un script de pre-request que agrega el header `Authorization: Bearer {{access_token}}` solamente cuando la variable tiene valor. Esto permite ejecutar la colección hoy y reutilizarla cuando se habilite la seguridad.
+### Flujo de autenticación y tokens en Postman
+1. En la carpeta `00 - Preparacion`, se ejecutan las solicitudes:
+   - `00.00a - Obtener token ADMIN (admin1)`: obtiene el token de administrador y lo guarda en `token_admin` y en `access_token` (por defecto activo).
+   - `00.00b - Obtener token AGRONOMO (agronomo1)`: obtiene el token y lo guarda en `token_agronomo`.
+   - `00.00c - Obtener token OPERARIO (operario1)`: obtiene el token y lo guarda en `token_operario`.
+2. Para alternar el rol con el que se envían las peticiones manuales:
+   - Ejecutar `00.00d - Activar rol ADMIN`
+   - O ejecutar `00.00e - Activar rol AGRONOMO`
+   - O ejecutar `00.00f - Activar rol OPERARIO`
+   *(Cada una asigna su token a `access_token`, que es el que inyecta automáticamente el script de pre-request).*
 
-### Cuando se habilite Keycloak
-
-Configuración propuesta:
-
-- Realm: `bda-realm`
-- Roles: `ADMIN`, `AGRONOMO`, `OPERARIO`
-- Token endpoint:
-
-```http
-POST {{keycloakUrl}}/realms/bda-realm/protocol/openid-connect/token
-Content-Type: application/x-www-form-urlencoded
-
-grant_type=password
-client_id=agro-campos-client
-username=<usuario>
-password=<password>
-```
-
-El token se guarda en `access_token`. El gateway valida el JWT antes de rutear y cada microservicio lo valida nuevamente como Resource Server.
-
+### Matriz de permisos (Sección 10 del documento de arquitectura)
 | Operación | ADMIN | AGRONOMO | OPERARIO |
 |---|:-:|:-:|:-:|
-| Consultar campos, catálogo y planes | Sí | Sí | Sí |
-| Alta, modificación y baja de campos y lotes | Sí | No | No |
-| Administrar catálogo agronómico | Sí | Sí | No |
-| Crear y cancelar planes | Sí | Sí | No |
-| Iniciar y completar labores | Sí | Sí | Sí |
+| Consultar campos, catálogo y planes (GET) | ✅ | ✅ | ✅ |
+| Alta, modificación y baja de campos y lotes | ✅ | ❌ (403 Forbidden) | ❌ (403 Forbidden) |
+| Administrar catálogo agronómico (cultivos, agroquímicos, plagas, tratamientos) | ✅ | ✅ | ❌ (403 Forbidden) |
+| Crear y cancelar planes de siembra | ✅ | ✅ | ❌ (403 Forbidden) |
+| Iniciar y completar labores | ✅ | ✅ | ✅ |
 
-Cuando Keycloak esté operativo se agregarán los escenarios negativos de seguridad: token ausente, token vencido, rol insuficiente (`403`) y acceso directo a servicios internos.
+### Escenarios de seguridad verificados (Carpeta 07)
+1. **07.01**: El `OPERARIO` puede consultar la lista de campos por el Gateway (`200 OK`).
+2. **07.02**: El `OPERARIO` intenta crear un campo y es rechazado con `403 Forbidden`.
+3. **07.03**: El `OPERARIO` intenta crear un cultivo y es rechazado con `403 Forbidden`.
+4. **07.04**: El `AGRONOMO` intenta crear un campo y es rechazado con `403 Forbidden` (solo ADMIN).
+5. **07.05**: El `AGRONOMO` registra un cultivo con éxito (`201 Created`).
+6. **07.06**: Una petición sin token a través del Gateway es rechazada inmediatamente con `401 Unauthorized`.
 
 ---
 

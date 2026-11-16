@@ -15,7 +15,9 @@
         "type": "text/javascript",
         "exec": [
           "const token = pm.environment.get(\"access_token\");",
-          "if (pm.info.requestName !== \"00.00 - Obtener token Admin\" && token && String(token).trim().length > 0) {",
+          "const isAuthRequest = pm.info.requestName.startsWith(\"00.00\");",
+          "const hasExplicitAuth = pm.request.headers.has(\"Authorization\");",
+          "if (!isAuthRequest && !hasExplicitAuth && token && String(token).trim().length > 0) {",
           "  pm.request.headers.upsert({ key: \"Authorization\", value: \"Bearer \" + token });",
           "}",
           "if (!pm.collectionVariables.get(\"runId\")) { pm.collectionVariables.set(\"runId\", String(Date.now()).slice(-6)); }",
@@ -26,23 +28,13 @@
   ],
   "variable": [
     {
-      "key": "gatewayUrl",
+      "key": "baseUrl",
       "value": "http://localhost:8080",
       "type": "string"
     },
     {
-      "key": "camposUrl",
-      "value": "http://localhost:8082",
-      "type": "string"
-    },
-    {
-      "key": "agronomiaUrl",
-      "value": "http://localhost:8083",
-      "type": "string"
-    },
-    {
-      "key": "proyectosUrl",
-      "value": "http://localhost:8084",
+      "key": "keycloakUrl",
+      "value": "http://localhost:8081",
       "type": "string"
     },
     {
@@ -231,17 +223,18 @@
       "name": "00 - Preparacion",
       "item": [
         {
-          "name": "00.00 - Obtener token Admin",
+          "name": "00.00a - Obtener token ADMIN (admin1)",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Token obtenido\", function () {",
+                  "pm.test(\"Token ADMIN obtenido (200 OK)\", function () {",
                   "  pm.response.to.have.status(200);",
                   "  const response = pm.response.json();",
                   "  pm.expect(response.access_token).to.be.a(\"string\").and.not.empty;",
+                  "  pm.environment.set(\"token_admin\", response.access_token);",
                   "  pm.environment.set(\"access_token\", response.access_token);",
                   "});"
                 ]
@@ -285,12 +278,274 @@
                 }
               ]
             },
-            "url": "http://localhost:8081/realms/bda-realm/protocol/openid-connect/token",
-            "description": "Obtiene un JWT de Keycloak y lo guarda en access_token del Environment activo. Usa credenciales de desarrollo; ajustarlas si difieren."
+            "url": "{{keycloakUrl}}/realms/bda-realm/protocol/openid-connect/token",
+            "description": "Obtiene un JWT de Keycloak para el rol ADMIN (admin1) y lo guarda en token_admin y access_token."
           }
         },
         {
-          "name": "00.01 Reset de variables y healthcheck de campos-service",
+          "name": "00.00b - Obtener token AGRONOMO (agronomo1)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Token AGRONOMO obtenido (200 OK)\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  const response = pm.response.json();",
+                  "  pm.expect(response.access_token).to.be.a(\"string\").and.not.empty;",
+                  "  pm.environment.set(\"token_agronomo\", response.access_token);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "password",
+                  "type": "text"
+                },
+                {
+                  "key": "client_id",
+                  "value": "agro-campos-client",
+                  "type": "text"
+                },
+                {
+                  "key": "username",
+                  "value": "agronomo1",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "agronomo1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{keycloakUrl}}/realms/bda-realm/protocol/openid-connect/token",
+            "description": "Obtiene un JWT de Keycloak para el rol AGRONOMO (agronomo1) y lo guarda en token_agronomo."
+          }
+        },
+        {
+          "name": "00.00c - Obtener token OPERARIO (operario1)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Token OPERARIO obtenido (200 OK)\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  const response = pm.response.json();",
+                  "  pm.expect(response.access_token).to.be.a(\"string\").and.not.empty;",
+                  "  pm.environment.set(\"token_operario\", response.access_token);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "password",
+                  "type": "text"
+                },
+                {
+                  "key": "client_id",
+                  "value": "agro-campos-client",
+                  "type": "text"
+                },
+                {
+                  "key": "username",
+                  "value": "operario1",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "operario1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{keycloakUrl}}/realms/bda-realm/protocol/openid-connect/token",
+            "description": "Obtiene un JWT de Keycloak para el rol OPERARIO (operario1) y lo guarda en token_operario."
+          }
+        },
+        {
+          "name": "00.00d - Activar rol ADMIN para las peticiones",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const t = pm.environment.get(\"token_admin\");",
+                  "if (!t || t.trim().length === 0) {",
+                  "  console.warn(\"No hay token guardado para ADMIN. Ejecuta primero la solicitud para obtener su token.\");",
+                  "} else {",
+                  "  pm.environment.set(\"access_token\", t);",
+                  "  console.log(\"Rol activo establecido a ADMIN\");",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Rol activo ADMIN asignado a access_token\", function () {",
+                  "  const activeToken = pm.environment.get(\"access_token\");",
+                  "  const roleToken = pm.environment.get(\"token_admin\");",
+                  "  pm.expect(activeToken).to.equal(roleToken);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/actuator/health",
+            "description": "Asigna el token_admin a access_token para que todas las peticiones subsiguientes se ejecuten bajo el rol ADMIN."
+          }
+        },
+        {
+          "name": "00.00e - Activar rol AGRONOMO para las peticiones",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const t = pm.environment.get(\"token_agronomo\");",
+                  "if (!t || t.trim().length === 0) {",
+                  "  console.warn(\"No hay token guardado para AGRONOMO. Ejecuta primero la solicitud para obtener su token.\");",
+                  "} else {",
+                  "  pm.environment.set(\"access_token\", t);",
+                  "  console.log(\"Rol activo establecido a AGRONOMO\");",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Rol activo AGRONOMO asignado a access_token\", function () {",
+                  "  const activeToken = pm.environment.get(\"access_token\");",
+                  "  const roleToken = pm.environment.get(\"token_agronomo\");",
+                  "  pm.expect(activeToken).to.equal(roleToken);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/actuator/health",
+            "description": "Asigna el token_agronomo a access_token para que todas las peticiones subsiguientes se ejecuten bajo el rol AGRONOMO."
+          }
+        },
+        {
+          "name": "00.00f - Activar rol OPERARIO para las peticiones",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const t = pm.environment.get(\"token_operario\");",
+                  "if (!t || t.trim().length === 0) {",
+                  "  console.warn(\"No hay token guardado para OPERARIO. Ejecuta primero la solicitud para obtener su token.\");",
+                  "} else {",
+                  "  pm.environment.set(\"access_token\", t);",
+                  "  console.log(\"Rol activo establecido a OPERARIO\");",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Rol activo OPERARIO asignado a access_token\", function () {",
+                  "  const activeToken = pm.environment.get(\"access_token\");",
+                  "  const roleToken = pm.environment.get(\"token_operario\");",
+                  "  pm.expect(activeToken).to.equal(roleToken);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/actuator/health",
+            "description": "Asigna el token_operario a access_token para que todas las peticiones subsiguientes se ejecuten bajo el rol OPERARIO."
+          }
+        },
+        {
+          "name": "00.01 - Reset de variables y healthcheck del Gateway (8080)",
           "request": {
             "method": "GET",
             "header": [
@@ -300,7 +555,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/actuator/health",
+            "url": "{{baseUrl}}/actuator/health",
             "description": "Borra los IDs de la ejecucion anterior, genera un runId y una fecha de siembra futura, y comprueba que campos-service este arriba. Ejecutar siempre primero."
           },
           "event": [
@@ -331,7 +586,7 @@
           ]
         },
         {
-          "name": "00.02 Healthcheck de agronomia-service",
+          "name": "00.02 - Healthcheck de agronomia-service (via Gateway)",
           "request": {
             "method": "GET",
             "header": [
@@ -341,7 +596,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/actuator/health"
+            "url": "{{baseUrl}}/actuator/health"
           },
           "event": [
             {
@@ -356,7 +611,7 @@
           ]
         },
         {
-          "name": "00.03 Healthcheck de proyectos-service",
+          "name": "00.03 - Healthcheck de proyectos-service (via Gateway)",
           "request": {
             "method": "GET",
             "header": [
@@ -366,7 +621,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/actuator/health"
+            "url": "{{baseUrl}}/actuator/health"
           },
           "event": [
             {
@@ -402,7 +657,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos",
+            "url": "{{baseUrl}}/api/v1/campos",
             "body": {
               "mode": "raw",
               "raw": "{\"nombre\":\"{{campoNombre}}\",\"superficieTotalHas\":120.0}",
@@ -456,7 +711,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes",
+            "url": "{{baseUrl}}/api/v1/campos/{{campoId}}/lotes",
             "body": {
               "mode": "raw",
               "raw": "{\"nroLote\":1,\"hectareas\":40.0,\"latitud\":-31.4201,\"longitud\":-64.1888,\"tipoSuelo\":\"TIPO_2\"}",
@@ -501,7 +756,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes",
+            "url": "{{baseUrl}}/api/v1/campos/{{campoId}}/lotes",
             "body": {
               "mode": "raw",
               "raw": "{\"nroLote\":2,\"hectareas\":20.0,\"tipoSuelo\":\"TIPO_2\"}",
@@ -546,7 +801,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes",
+            "url": "{{baseUrl}}/api/v1/campos/{{campoId}}/lotes",
             "body": {
               "mode": "raw",
               "raw": "{\"nroLote\":3,\"hectareas\":10.0,\"latitud\":-31.43,\"longitud\":-64.19,\"tipoSuelo\":\"TIPO_5\"}",
@@ -588,7 +843,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/cultivos",
+            "url": "{{baseUrl}}/api/v1/agronomia/cultivos",
             "body": {
               "mode": "raw",
               "raw": "{\"nombre\":\"{{cultivoNombre}}\",\"suelosAptos\":[\"TIPO_1\",\"TIPO_2\"],\"labores\":[\"Arar\",\"Sembrar\",\"Fumigar\",\"Cosechar\"]}",
@@ -641,7 +896,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/cultivos",
+            "url": "{{baseUrl}}/api/v1/agronomia/cultivos",
             "body": {
               "mode": "raw",
               "raw": "{\"nombre\":\"{{cultivoMaizNombre}}\",\"suelosAptos\":[\"TIPO_2\",\"TIPO_3\"],\"labores\":[\"Arar\",\"Sembrar\",\"Fumigar\",\"Cosechar\"]}",
@@ -691,7 +946,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/plagas",
+            "url": "{{baseUrl}}/api/v1/agronomia/plagas",
             "body": {
               "mode": "raw",
               "raw": "{\"nombre\":\"{{plagaNombre}}\",\"descripcion\":\"Larva defoliadora\",\"tipoPlaga\":\"INSECTO\"}",
@@ -742,7 +997,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos",
+            "url": "{{baseUrl}}/api/v1/agronomia/agroquimicos",
             "body": {
               "mode": "raw",
               "raw": "{\"nombreComercial\":\"{{agroquimicoNombre}}\",\"principioActivo\":\"Clorantraniliprol\",\"tipo\":\"INSECTICIDA\",\"vientoMaximoPermitidoKmH\":999.0,\"horasLibresDeLluviaRequeridas\":1}",
@@ -796,7 +1051,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos",
+            "url": "{{baseUrl}}/api/v1/agronomia/agroquimicos",
             "body": {
               "mode": "raw",
               "raw": "{\"nombreComercial\":\"{{agroquimicoRestrictivoNombre}}\",\"principioActivo\":\"Prueba\",\"tipo\":\"INSECTICIDA\",\"vientoMaximoPermitidoKmH\":0.01,\"horasLibresDeLluviaRequeridas\":1}",
@@ -846,7 +1101,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos",
+            "url": "{{baseUrl}}/api/v1/agronomia/agroquimicos",
             "body": {
               "mode": "raw",
               "raw": "{\"nombreComercial\":\"{{fertilizanteNombre}}\",\"principioActivo\":\"NPK\",\"tipo\":\"FERTILIZANTE\",\"vientoMaximoPermitidoKmH\":15.0,\"horasLibresDeLluviaRequeridas\":4}",
@@ -896,7 +1151,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos",
+            "url": "{{baseUrl}}/api/v1/agronomia/agroquimicos",
             "body": {
               "mode": "raw",
               "raw": "{\"nombreComercial\":\"{{fungicidaNombre}}\",\"principioActivo\":\"Azoxistrobina\",\"tipo\":\"FUNGICIDA\",\"vientoMaximoPermitidoKmH\":15.0,\"horasLibresDeLluviaRequeridas\":4}",
@@ -946,7 +1201,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos",
+            "url": "{{baseUrl}}/api/v1/agronomia/tratamientos",
             "body": {
               "mode": "raw",
               "raw": "{\"plagaId\":{{plagaId}},\"agroquimicoId\":{{agroquimicoId}},\"cultivoId\":{{cultivoId}},\"dosisPorHectarea\":0.5,\"unidadMedida\":\"Litros/ha\"}",
@@ -990,7 +1245,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos",
+            "url": "{{baseUrl}}/api/v1/agronomia/tratamientos",
             "body": {
               "mode": "raw",
               "raw": "{\"plagaId\":{{plagaId}},\"agroquimicoId\":{{agroquimicoRestrictivoId}},\"cultivoId\":{{cultivoId}},\"dosisPorHectarea\":0.5,\"unidadMedida\":\"Litros/ha\"}",
@@ -1031,7 +1286,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos",
+            "url": "{{baseUrl}}/api/v1/agronomia/tratamientos",
             "body": {
               "mode": "raw",
               "raw": "{\"plagaId\":{{plagaId}},\"agroquimicoId\":{{agroquimicoId}},\"cultivoId\":{{cultivoMaizId}},\"dosisPorHectarea\":0.5,\"unidadMedida\":\"Litros/ha\"}",
@@ -1073,7 +1328,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos"
+            "url": "{{baseUrl}}/api/v1/campos"
           },
           "event": [
             {
@@ -1101,7 +1356,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}"
+            "url": "{{baseUrl}}/api/v1/campos/{{campoId}}"
           },
           "event": [
             {
@@ -1133,7 +1388,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}",
+            "url": "{{baseUrl}}/api/v1/campos/{{campoId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"nombre\":\"{{campoNombre}}\",\"superficieTotalHas\":130.0}",
@@ -1169,7 +1424,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes"
+            "url": "{{baseUrl}}/api/v1/campos/{{campoId}}/lotes"
           },
           "event": [
             {
@@ -1196,7 +1451,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes/{{loteId}}"
+            "url": "{{baseUrl}}/api/v1/campos/{{campoId}}/lotes/{{loteId}}"
           },
           "event": [
             {
@@ -1228,7 +1483,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes/{{loteSinCoordsId}}",
+            "url": "{{baseUrl}}/api/v1/campos/{{campoId}}/lotes/{{loteSinCoordsId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"nroLote\":2,\"hectareas\":25.0,\"tipoSuelo\":\"TIPO_2\"}",
@@ -1269,7 +1524,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos",
+            "url": "{{baseUrl}}/api/v1/campos",
             "body": {
               "mode": "raw",
               "raw": "{\"nombre\":\"{{campoNombreMayus}}\",\"superficieTotalHas\":50.0}",
@@ -1320,7 +1575,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos",
+            "url": "{{baseUrl}}/api/v1/campos",
             "body": {
               "mode": "raw",
               "raw": "{\"nombre\":\"\",\"superficieTotalHas\":0}",
@@ -1364,7 +1619,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes",
+            "url": "{{baseUrl}}/api/v1/campos/{{campoId}}/lotes",
             "body": {
               "mode": "raw",
               "raw": "{\"nroLote\":1,\"hectareas\":5.0,\"latitud\":-31.42,\"longitud\":-64.18,\"tipoSuelo\":\"TIPO_2\"}",
@@ -1405,7 +1660,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes",
+            "url": "{{baseUrl}}/api/v1/campos/{{campoId}}/lotes",
             "body": {
               "mode": "raw",
               "raw": "{\"nroLote\":99,\"hectareas\":200.0,\"latitud\":-31.42,\"longitud\":-64.18,\"tipoSuelo\":\"TIPO_2\"}",
@@ -1446,7 +1701,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}",
+            "url": "{{baseUrl}}/api/v1/campos/{{campoId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"nombre\":\"{{campoNombre}}\",\"superficieTotalHas\":1.0}",
@@ -1487,7 +1742,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes/{{loteSinCoordsId}}",
+            "url": "{{baseUrl}}/api/v1/campos/{{campoId}}/lotes/{{loteSinCoordsId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"nroLote\":1,\"hectareas\":25.0,\"tipoSuelo\":\"TIPO_2\"}",
@@ -1523,7 +1778,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos/999999"
+            "url": "{{baseUrl}}/api/v1/campos/999999"
           },
           "event": [
             {
@@ -1549,7 +1804,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes/999999"
+            "url": "{{baseUrl}}/api/v1/campos/{{campoId}}/lotes/999999"
           },
           "event": [
             {
@@ -1580,7 +1835,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/cultivos"
+            "url": "{{baseUrl}}/api/v1/agronomia/cultivos"
           },
           "event": [
             {
@@ -1608,7 +1863,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/cultivos/{{cultivoId}}"
+            "url": "{{baseUrl}}/api/v1/agronomia/cultivos/{{cultivoId}}"
           },
           "event": [
             {
@@ -1638,7 +1893,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/plagas"
+            "url": "{{baseUrl}}/api/v1/agronomia/plagas"
           },
           "event": [
             {
@@ -1666,7 +1921,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/plagas/{{plagaId}}"
+            "url": "{{baseUrl}}/api/v1/agronomia/plagas/{{plagaId}}"
           },
           "event": [
             {
@@ -1692,7 +1947,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos"
+            "url": "{{baseUrl}}/api/v1/agronomia/agroquimicos"
           },
           "event": [
             {
@@ -1720,7 +1975,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos/{{agroquimicoId}}"
+            "url": "{{baseUrl}}/api/v1/agronomia/agroquimicos/{{agroquimicoId}}"
           },
           "event": [
             {
@@ -1746,7 +2001,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos"
+            "url": "{{baseUrl}}/api/v1/agronomia/tratamientos"
           },
           "event": [
             {
@@ -1774,7 +2029,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos?plagaId={{plagaId}}&cultivoId={{cultivoId}}"
+            "url": "{{baseUrl}}/api/v1/agronomia/tratamientos?plagaId={{plagaId}}&cultivoId={{cultivoId}}"
           },
           "event": [
             {
@@ -1802,7 +2057,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos/{{tratamientoId}}"
+            "url": "{{baseUrl}}/api/v1/agronomia/tratamientos/{{tratamientoId}}"
           },
           "event": [
             {
@@ -1837,7 +2092,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/plagas/{{plagaId}}",
+            "url": "{{baseUrl}}/api/v1/agronomia/plagas/{{plagaId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"nombre\":\"{{plagaNombre}}\",\"descripcion\":\"Descripcion actualizada\",\"tipoPlaga\":\"INSECTO\"}",
@@ -1877,7 +2132,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos",
+            "url": "{{baseUrl}}/api/v1/agronomia/agroquimicos",
             "body": {
               "mode": "raw",
               "raw": "{\"nombreComercial\":\"{{agroquimicoNombre}}\",\"principioActivo\":\"Otro\",\"tipo\":\"INSECTICIDA\",\"vientoMaximoPermitidoKmH\":20.0,\"horasLibresDeLluviaRequeridas\":2}",
@@ -1917,7 +2172,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos",
+            "url": "{{baseUrl}}/api/v1/agronomia/tratamientos",
             "body": {
               "mode": "raw",
               "raw": "{\"plagaId\":{{plagaId}},\"agroquimicoId\":{{agroquimicoId}},\"cultivoId\":{{cultivoId}},\"dosisPorHectarea\":0,\"unidadMedida\":\"Litros/ha\"}",
@@ -1958,7 +2213,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos",
+            "url": "{{baseUrl}}/api/v1/agronomia/tratamientos",
             "body": {
               "mode": "raw",
               "raw": "{\"plagaId\":{{plagaId}},\"agroquimicoId\":{{fertilizanteId}},\"cultivoId\":{{cultivoId}},\"dosisPorHectarea\":1.0,\"unidadMedida\":\"Kg/ha\"}",
@@ -1998,7 +2253,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos",
+            "url": "{{baseUrl}}/api/v1/agronomia/tratamientos",
             "body": {
               "mode": "raw",
               "raw": "{\"plagaId\":{{plagaId}},\"agroquimicoId\":{{fungicidaId}},\"cultivoId\":{{cultivoId}},\"dosisPorHectarea\":1.0,\"unidadMedida\":\"Kg/ha\"}",
@@ -2038,7 +2293,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos",
+            "url": "{{baseUrl}}/api/v1/agronomia/tratamientos",
             "body": {
               "mode": "raw",
               "raw": "{\"plagaId\":999999,\"agroquimicoId\":{{agroquimicoId}},\"cultivoId\":{{cultivoId}},\"dosisPorHectarea\":1.0,\"unidadMedida\":\"Litros/ha\"}",
@@ -2078,7 +2333,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/cultivos",
+            "url": "{{baseUrl}}/api/v1/agronomia/cultivos",
             "body": {
               "mode": "raw",
               "raw": "{\"nombre\":\"Cultivo sin suelo {{runId}}\",\"suelosAptos\":[],\"labores\":[\"Arar\"]}",
@@ -2118,7 +2373,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/plagas",
+            "url": "{{baseUrl}}/api/v1/agronomia/plagas",
             "body": {
               "mode": "raw",
               "raw": "{\"nombre\":\"Plaga sin tipo {{runId}}\",\"descripcion\":\"x\"}",
@@ -2158,7 +2413,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos",
+            "url": "{{baseUrl}}/api/v1/agronomia/tratamientos",
             "body": {
               "mode": "raw",
               "raw": "{\"dosisPorHectarea\":1.0,\"unidadMedida\":\"Litros/ha\"}",
@@ -2198,7 +2453,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/cultivos/999999"
+            "url": "{{baseUrl}}/api/v1/agronomia/cultivos/999999"
           },
           "event": [
             {
@@ -2223,7 +2478,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos/999999"
+            "url": "{{baseUrl}}/api/v1/agronomia/tratamientos/999999"
           },
           "event": [
             {
@@ -2259,7 +2514,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes",
             "body": {
               "mode": "raw",
               "raw": "{\"campoId\":{{campoId}},\"loteId\":{{loteSinCoordsId}},\"cultivoId\":{{cultivoId}},\"fechaSiembraPrevista\":\"{{fechaSiembra}}\"}",
@@ -2320,7 +2575,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes",
             "body": {
               "mode": "raw",
               "raw": "{\"campoId\":{{campoId}},\"loteId\":{{loteSinCoordsId}},\"cultivoId\":{{cultivoId}},\"fechaSiembraPrevista\":\"{{fechaSiembra}}\"}",
@@ -2360,7 +2615,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes",
             "body": {
               "mode": "raw",
               "raw": "{\"campoId\":{{campoId}},\"loteId\":{{loteNoAptoId}},\"cultivoId\":{{cultivoId}},\"fechaSiembraPrevista\":\"{{fechaSiembra}}\"}",
@@ -2400,7 +2655,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborFumigarId}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborFumigarId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"EN_EJECUCION\",\"tratamientoId\":{{tratamientoId}}}",
@@ -2440,7 +2695,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborArarId}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborArarId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"EN_EJECUCION\"}",
@@ -2485,7 +2740,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborArarId}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborArarId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"PENDIENTE\"}",
@@ -2525,7 +2780,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborArarId}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborArarId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"COMPLETADA\"}",
@@ -2567,7 +2822,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborSembrarId}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborSembrarId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"COMPLETADA\"}",
@@ -2607,7 +2862,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborSembrarId}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborSembrarId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"EN_EJECUCION\"}",
@@ -2650,7 +2905,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborSembrarId}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborSembrarId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"COMPLETADA\"}",
@@ -2693,7 +2948,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborFumigarId}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborFumigarId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"EN_EJECUCION\"}",
@@ -2733,7 +2988,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborFumigarId}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborFumigarId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"EN_EJECUCION\",\"tratamientoId\":{{tratamientoMaizId}}}",
@@ -2773,7 +3028,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborFumigarId}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborFumigarId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"EN_EJECUCION\",\"tratamientoId\":{{tratamientoId}}}",
@@ -2819,7 +3074,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborFumigarId}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborFumigarId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"COMPLETADA\"}",
@@ -2862,7 +3117,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborCosecharId}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborCosecharId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"EN_EJECUCION\"}",
@@ -2901,7 +3156,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborCosecharId}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborCosecharId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"COMPLETADA\"}",
@@ -2942,7 +3197,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"CANCELADO\"}",
@@ -2982,7 +3237,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborArarId}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planId}}/labores/{{laborArarId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"EN_EJECUCION\"}",
@@ -3017,7 +3272,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}"
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planId}}"
           },
           "event": [
             {
@@ -3047,7 +3302,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes"
+            "url": "{{baseUrl}}/api/v1/proyectos/planes"
           },
           "event": [
             {
@@ -3075,7 +3330,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes?estado=FINALIZADO"
+            "url": "{{baseUrl}}/api/v1/proyectos/planes?estado=FINALIZADO"
           },
           "event": [
             {
@@ -3103,7 +3358,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes?estado=XYZ"
+            "url": "{{baseUrl}}/api/v1/proyectos/planes?estado=XYZ"
           },
           "event": [
             {
@@ -3129,7 +3384,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/lotes/{{loteSinCoordsId}}/planes"
+            "url": "{{baseUrl}}/api/v1/proyectos/lotes/{{loteSinCoordsId}}/planes"
           },
           "event": [
             {
@@ -3162,7 +3417,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes",
             "body": {
               "mode": "raw",
               "raw": "{\"campoId\":{{campoId}},\"loteId\":{{loteSinCoordsId}},\"cultivoId\":{{cultivoId}},\"fechaSiembraPrevista\":\"{{fechaSiembra}}\"}",
@@ -3204,7 +3459,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{plan2Id}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{plan2Id}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"FINALIZADO\"}",
@@ -3244,7 +3499,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{plan2Id}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{plan2Id}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"CANCELADO\"}",
@@ -3284,7 +3539,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes",
             "body": {
               "mode": "raw",
               "raw": "{\"campoId\":{{campoId}},\"loteId\":{{loteSinCoordsId}},\"cultivoId\":{{cultivoId}},\"fechaSiembraPrevista\":\"{{fechaSiembra}}\"}",
@@ -3325,7 +3580,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{plan3Id}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{plan3Id}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"CANCELADO\"}",
@@ -3365,7 +3620,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes",
             "body": {
               "mode": "raw",
               "raw": "{\"campoId\":{{campoId}},\"loteId\":{{loteSinCoordsId}},\"cultivoId\":{{cultivoId}},\"fechaSiembraPrevista\":\"2020-01-01\"}",
@@ -3405,7 +3660,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes",
             "body": {
               "mode": "raw",
               "raw": "{\"campoId\":{{campoId}},\"loteId\":999999,\"cultivoId\":{{cultivoId}},\"fechaSiembraPrevista\":\"{{fechaSiembra}}\"}",
@@ -3445,7 +3700,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes",
             "body": {
               "mode": "raw",
               "raw": "{\"campoId\":{{campoId}},\"loteId\":{{loteSinCoordsId}},\"cultivoId\":999999,\"fechaSiembraPrevista\":\"{{fechaSiembra}}\"}",
@@ -3491,7 +3746,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes",
             "body": {
               "mode": "raw",
               "raw": "{\"campoId\":{{campoId}},\"loteId\":{{loteId}},\"cultivoId\":{{cultivoId}},\"fechaSiembraPrevista\":\"{{fechaSiembra}}\"}",
@@ -3537,7 +3792,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planClimaId}}/labores/{{climaArarId}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planClimaId}}/labores/{{climaArarId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"EN_EJECUCION\"}",
@@ -3576,7 +3831,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planClimaId}}/labores/{{climaArarId}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planClimaId}}/labores/{{climaArarId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"COMPLETADA\"}",
@@ -3615,7 +3870,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planClimaId}}/labores/{{climaSembrarId}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planClimaId}}/labores/{{climaSembrarId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"EN_EJECUCION\"}",
@@ -3654,7 +3909,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planClimaId}}/labores/{{climaSembrarId}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planClimaId}}/labores/{{climaSembrarId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"COMPLETADA\"}",
@@ -3693,7 +3948,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planClimaId}}/labores/{{climaFumigarId}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planClimaId}}/labores/{{climaFumigarId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"EN_EJECUCION\",\"tratamientoId\":{{tratamientoRestrictivoId}}}",
@@ -3734,7 +3989,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planClimaId}}",
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planClimaId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"estado\":\"CANCELADO\"}",
@@ -3774,7 +4029,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/cultivos/{{cultivoId}}",
+            "url": "{{baseUrl}}/api/v1/agronomia/cultivos/{{cultivoId}}",
             "body": {
               "mode": "raw",
               "raw": "{\"nombre\":\"{{cultivoNombre}}\",\"suelosAptos\":[\"TIPO_1\",\"TIPO_2\"],\"labores\":[\"Arar\",\"Sembrar\",\"Fumigar\",\"Cosechar\",\"Rastrillar\"]}",
@@ -3809,7 +4064,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{proyectosUrl}}/api/v1/proyectos/planes/{{planId}}"
+            "url": "{{baseUrl}}/api/v1/proyectos/planes/{{planId}}"
           },
           "event": [
             {
@@ -3845,7 +4100,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes/{{loteNoAptoId}}"
+            "url": "{{baseUrl}}/api/v1/campos/{{campoId}}/lotes/{{loteNoAptoId}}"
           },
           "event": [
             {
@@ -3870,7 +4125,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}/lotes/{{loteNoAptoId}}"
+            "url": "{{baseUrl}}/api/v1/campos/{{campoId}}/lotes/{{loteNoAptoId}}"
           },
           "event": [
             {
@@ -3895,7 +4150,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos/{{tratamientoId}}"
+            "url": "{{baseUrl}}/api/v1/agronomia/tratamientos/{{tratamientoId}}"
           },
           "event": [
             {
@@ -3920,7 +4175,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos/{{tratamientoRestrictivoId}}"
+            "url": "{{baseUrl}}/api/v1/agronomia/tratamientos/{{tratamientoRestrictivoId}}"
           },
           "event": [
             {
@@ -3945,7 +4200,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/tratamientos/{{tratamientoMaizId}}"
+            "url": "{{baseUrl}}/api/v1/agronomia/tratamientos/{{tratamientoMaizId}}"
           },
           "event": [
             {
@@ -3970,7 +4225,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/plagas/{{plagaId}}"
+            "url": "{{baseUrl}}/api/v1/agronomia/plagas/{{plagaId}}"
           },
           "event": [
             {
@@ -3995,7 +4250,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos/{{agroquimicoId}}"
+            "url": "{{baseUrl}}/api/v1/agronomia/agroquimicos/{{agroquimicoId}}"
           },
           "event": [
             {
@@ -4020,7 +4275,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos/{{agroquimicoRestrictivoId}}"
+            "url": "{{baseUrl}}/api/v1/agronomia/agroquimicos/{{agroquimicoRestrictivoId}}"
           },
           "event": [
             {
@@ -4045,7 +4300,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos/{{fertilizanteId}}"
+            "url": "{{baseUrl}}/api/v1/agronomia/agroquimicos/{{fertilizanteId}}"
           },
           "event": [
             {
@@ -4070,7 +4325,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/agroquimicos/{{fungicidaId}}"
+            "url": "{{baseUrl}}/api/v1/agronomia/agroquimicos/{{fungicidaId}}"
           },
           "event": [
             {
@@ -4095,7 +4350,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/cultivos/{{cultivoId}}"
+            "url": "{{baseUrl}}/api/v1/agronomia/cultivos/{{cultivoId}}"
           },
           "event": [
             {
@@ -4120,7 +4375,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{agronomiaUrl}}/api/v1/agronomia/cultivos/{{cultivoMaizId}}"
+            "url": "{{baseUrl}}/api/v1/agronomia/cultivos/{{cultivoMaizId}}"
           },
           "event": [
             {
@@ -4145,7 +4400,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}"
+            "url": "{{baseUrl}}/api/v1/campos/{{campoId}}"
           },
           "event": [
             {
@@ -4170,7 +4425,7 @@
                 "type": "text"
               }
             ],
-            "url": "{{camposUrl}}/api/v1/campos/{{campoId}}"
+            "url": "{{baseUrl}}/api/v1/campos/{{campoId}}"
           },
           "event": [
             {
@@ -4186,6 +4441,246 @@
         }
       ],
       "description": "Opcional. Da de baja los datos creados para dejar la base limpia. Si se omite, los registros quedan activos."
+    },
+    {
+      "name": "07 - Seguridad y Roles (RBAC)",
+      "description": "Verificacion de autorizacion por roles (ADMIN, AGRONOMO, OPERARIO) y token requerido a traves del API Gateway segun la Seccion 10 del documento de arquitectura.",
+      "item": [
+        {
+          "name": "07.01 [RBAC-01 / Permiso] Operario consulta campos por Gateway (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_operario}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/campos",
+            "description": "El rol OPERARIO tiene permisos de lectura para consultar campos (GET)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Operario puede consultar campos (200 OK)\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07.02 [RBAC-02 / 403 Forbidden] Operario intenta crear campo por Gateway (403 Forbidden)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_operario}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Campo Intento Operario {{runId}}\",\n  \"superficieTotalHas\": 100.0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/campos",
+            "description": "El rol OPERARIO NO tiene permisos de escritura en campos (solo ADMIN). Debe retornar 403 Forbidden."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Operario es rechazado al crear campo (403 Forbidden)\", function () {",
+                  "  pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07.03 [RBAC-03 / 403 Forbidden] Operario intenta crear cultivo por Gateway (403 Forbidden)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_operario}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Cultivo Rechazado Operario {{runId}}\",\n  \"suelosAptos\": [\"TIPO_1\"],\n  \"labores\": [\"Arar\", \"Sembrar\", \"Cosechar\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/agronomia/cultivos",
+            "description": "El rol OPERARIO NO puede administrar catalogo (solo ADMIN y AGRONOMO). Debe retornar 403 Forbidden."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Operario es rechazado al crear cultivo (403 Forbidden)\", function () {",
+                  "  pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07.04 [RBAC-04 / 403 Forbidden] Agronomo intenta crear campo por Gateway (403 Forbidden)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_agronomo}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Campo Intento Agronomo {{runId}}\",\n  \"superficieTotalHas\": 100.0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/campos",
+            "description": "El rol AGRONOMO NO puede dar de alta campos (solo ADMIN). Debe retornar 403 Forbidden."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Agronomo es rechazado al crear campo (403 Forbidden)\", function () {",
+                  "  pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07.05 [RBAC-05 / Permiso] Agronomo registra cultivo por Gateway (201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_agronomo}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Girasol Agronomo {{runId}}\",\n  \"suelosAptos\": [\"TIPO_1\", \"TIPO_2\"],\n  \"labores\": [\"Arar\", \"Sembrar\", \"Cosechar\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/agronomia/cultivos",
+            "description": "El rol AGRONOMO SI puede administrar catalogo (ADMIN y AGRONOMO). Debe retornar 201 Created."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Agronomo registra cultivo con exito (201 Created)\", function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07.06 [RBAC-06 / 401 Unauthorized] Peticion sin token al Gateway (401 Unauthorized)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer ",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/campos",
+            "description": "Cualquier peticion sin token JWT valido a traves del Gateway debe ser rechazada con 401 Unauthorized."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Gateway rechaza peticion sin token (401 Unauthorized)\", function () {",
+                  "  pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
