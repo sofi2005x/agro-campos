@@ -1,384 +1,156 @@
-# Colección ejecutable de endpoints y escenarios de prueba
+# Colecciones Postman de Agro Campos
 
-Este directorio contiene la entrega de la colección de llamadas a las APIs de **Agro Campos**:
+Este directorio contiene tres colecciones Postman v2.1, separadas por rol, y un environment local compartido. Los tests están implementados con scripts `pm.test` y encadenan solicitudes guardando los IDs obtenidos en las respuestas.
 
-| Archivo | Contenido |
-|---|---|
-| `AgroCampos.postman_collection.json` | Colección Postman v2.1 con 116 solicitudes organizadas por carpeta |
-| `AgroCampos.local.postman_environment.json` | Variables de entorno configuradas para enrutar a través del API Gateway |
-| `README.md` | Este documento: organización, variables, autenticación, datos iniciales, orden y escenarios |
+## Archivos y propósito
 
-La colección es importable en Postman, Newman o Bruno. En Bruno se puede importar el formato Postman; si se prefiere una colección nativa, se migran las mismas carpetas y variables conservando el orden.
+| Archivo | Nombre en Postman | Rol / usuario | Solicitudes | Propósito |
+|---|---|---|---:|---|
+| `AgroCampos.postman_collection.json` | Agro Campos - AD - ADMIN | `ADMIN` / `admin1` | 126 | Pruebas funcionales completas, reglas de negocio, integraciones, bajas lógicas y preparación de datos para AG y OP. |
+| `AgroCampos.AG.postman_collection.json` | Agro Campos - AG - AGRONOMO | `AGRONOMO` / `agronomo1` | 100 | Gestión del catálogo y planes, ejecución de labores, integraciones y rechazo de escrituras en campos/lotes. |
+| `AgroCampos.OP.postman_collection.json` | Agro Campos - OP - OPERARIO | `OPERARIO` / `operario1` | 46 | Consultas, ejecución de labores de un plan preparado y restricciones para administrar campos, catálogo y planes. |
+| `AgroCampos.local.postman_environment.json` | Agro Campos - Local (API Gateway) | Compartido | — | URLs locales y, durante la corrida, datos de apoyo publicados por AD. |
 
----
+Los totales cuentan solicitudes, no aserciones: una solicitud puede ejecutar varios tests.
 
-## 1. Requisitos y URLs
+## Requisitos y autenticación
 
-Siguiendo los lineamientos de arquitectura (Sección 06, 07 y 10 del documento), **todas las peticiones externas pasan obligatoriamente por el API Gateway (puerto 8080)**. Los microservicios quedan confinados en la red interna de Docker (`agro-network`), sin exponer sus puertos hacia el host exterior.
+Con la infraestructura local del proyecto en ejecución, deben estar disponibles el API Gateway en `http://localhost:8080` y Keycloak en `http://localhost:8081`. Las llamadas a campos, agronomía y proyectos usan el Gateway; la obtención de tokens se realiza directamente contra Keycloak.
 
-| Variable | Valor local | Servicio / Destino |
-|---|---|---|
-| `gatewayUrl` | `http://localhost:8080` | API Gateway (Único punto de entrada) |
-| `keycloakUrl` | `http://localhost:8081` | Keycloak Identity Provider (OIDC / OAuth 2.0) |
-| `camposUrl` | `http://localhost:8080` | Ruteado por Gateway a `/api/v1/campos/**` |
-| `agronomiaUrl` | `http://localhost:8080` | Ruteado por Gateway a `/api/v1/agronomia/**` |
-| `proyectosUrl` | `http://localhost:8080` | Ruteado por Gateway a `/api/v1/proyectos/**` |
-| `access_token` | *(dinámico)* | Token JWT activo enviado en `Authorization: Bearer` |
-| `token_admin` | *(dinámico)* | Token JWT del usuario Administrador (`admin1`) |
-| `token_agronomo` | *(dinámico)* | Token JWT del usuario Agrónomo (`agronomo1`) |
-| `token_operario` | *(dinámico)* | Token JWT del usuario Operario (`operario1`) |
+Cada colección obtiene exclusivamente el token de su usuario mediante `POST {{keycloakUrl}}/realms/bda-realm/protocol/openid-connect/token`, con `grant_type=password` y `client_id=agro-campos-client`.
 
-Prerrequisitos:
-1. Docker y Docker Compose instalados.
-2. Ejecutar `docker compose -f compose.yml up --build` desde la raíz. Esto levanta MySQL (3306), Keycloak (8081), los tres microservicios en la red interna y el API Gateway (8080).
-
----
-
-## 2. Organización de la colección
-
-Las carpetas se ejecutan en este orden:
-
-| Orden | Carpeta | Solicitudes | Propósito |
+| Colección | Solicitud de autenticación | Usuario | Contraseña local |
 |---|---|---|---|
-| 00 | Preparación | 9 | Obtención de tokens para los 3 roles, switch de rol, healthchecks y reset de variables |
-| 01 | Datos iniciales (seed) | 14 | Campo, lotes, cultivos, plaga, agroquímicos y tratamientos |
-| 02 | Campos y lotes | 14 | Escenarios de `campos-service` (a través del Gateway) |
-| 03 | Agronomía | 20 | Escenarios de catálogo y tratamientos (a través del Gateway) |
-| 04 | Proyectos: proceso principal | 31 | Plan de siembra, labores, cosecha y liberación del lote |
-| 05 | Integraciones | 9 | Comunicación entre servicios, Open-Meteo y copia de labores |
-| 06 | Limpieza (baja lógica) | 14 | Bajas lógicas opcionales |
-| 07 | Seguridad y Roles (RBAC) | 6 | Pruebas de acceso permitido, 403 Forbidden por rol y 401 Unauthorized sin token |
+| AD | `00.00a` | `admin1` | `admin1` |
+| AG | `00.00b` | `agronomo1` | `agronomo1` |
+| OP | `00.00c` | `operario1` | `operario1` |
 
-Cada solicitud lleva un código en el nombre, por ejemplo:
-- `00.00a - Obtener token ADMIN (admin1)`
-- `02.N01 [RN-CAM-01] Crear campo con nombre duplicado (case-insensitive)`
-- `04.09 [RN-LAB-04+] Completar Cosechar y finalizar plan`
-- `05.N01 [RN-LAB-05 / INT-OpenMeteo] Fumigar con viento sobre el máximo`
-- `07.02 [RBAC-02 / 403 Forbidden] Operario intenta crear campo por Gateway (403 Forbidden)`
+El token se guarda como `access_token` en las variables de **su propia colección**. El script previo lo lee explícitamente de ese ámbito y agrega `Authorization: Bearer ...` cuando la solicitud no tiene un encabezado de autorización explícito. No hay selector de rol ni tokens compartidos en el environment. Para renovar un token, volver a ejecutar la solicitud de autenticación del rol correspondiente.
 
-Los tests guardan los IDs en variables de colección para que las solicitudes siguientes usen datos reales y no IDs fijos.
+## Roles y permisos
 
----
-
-## 3. Variables de entorno
-
-### Variables de configuración
-
-| Variable | Descripción |
-|---|---|
-| `gatewayUrl` | URL del Gateway (`http://localhost:8080`) |
-| `keycloakUrl` | URL de Keycloak (`http://localhost:8081`) |
-| `camposUrl` | URL base para endpoints de campos (`http://localhost:8080`) |
-| `agronomiaUrl` | URL base para endpoints de agronomía (`http://localhost:8080`) |
-| `proyectosUrl` | URL base para endpoints de proyectos (`http://localhost:8080`) |
-| `access_token` | Token JWT actualmente en uso para las peticiones |
-| `token_admin` | Token del usuario `admin1` (Rol ADMIN) |
-| `token_agronomo` | Token del usuario `agronomo1` (Rol AGRONOMO) |
-| `token_operario` | Token del usuario `operario1` (Rol OPERARIO) |
-
-### Variables generadas durante la ejecución
-
-| Variable | Origen |
-|---|---|
-| `campoId` | `POST /api/v1/campos` |
-| `loteId`, `loteSinCoordsId`, `loteNoAptoId` | `POST /api/v1/campos/{id}/lotes` |
-| `cultivoId`, `cultivoMaizId` | `POST /api/v1/agronomia/cultivos` |
-| `plagaId` | `POST /api/v1/agronomia/plagas` |
-| `agroquimicoId`, `agroquimicoRestrictivoId`, `fertilizanteId`, `fungicidaId` | `POST /api/v1/agronomia/agroquimicos` |
-| `tratamientoId`, `tratamientoRestrictivoId`, `tratamientoMaizId` | `POST /api/v1/agronomia/tratamientos` |
-| `planId`, `laborArarId`, `laborSembrarId`, `laborFumigarId`, `laborCosecharId` | `POST /api/v1/proyectos/planes` |
-| `plan2Id`, `plan3Id`, `planClimaId` y sus labores | Solicitudes de proyectos |
-| `runId` | Generado en la carpeta 00 |
-| `fechaSiembra` | Fecha futura generada automáticamente |
-
-Los nombres de las entidades se generan con marca de tiempo para evitar conflictos con las reglas de unicidad entre ejecuciones.
-
-La solicitud `00.01` reinicia los IDs y regenera `runId` y `fechaSiembra`. Se debe ejecutar siempre antes de una nueva corrida.
-
----
-
-## 4. Autenticación y Control de Acceso (RBAC)
-
-### Configuración de Keycloak
-El sistema utiliza **Keycloak 26.0** configurado con el realm `bda-realm` y el cliente público `agro-campos-client` con Direct Access Grants (Resource Owner Password Credentials).
-
-Usuarios de prueba provisionados:
-| Usuario | Contraseña | Rol en Keycloak |
-|---|---|---|
-| `admin1` | `admin1` | `ADMIN` |
-| `agronomo1` | `agronomo1` | `AGRONOMO` |
-| `operario1` | `operario1` | `OPERARIO` |
-
-### Flujo de autenticación y tokens en Postman
-1. En la carpeta `00 - Preparacion`, se ejecutan las solicitudes:
-   - `00.00a - Obtener token ADMIN (admin1)`: obtiene el token de administrador y lo guarda en `token_admin` y en `access_token` (por defecto activo).
-   - `00.00b - Obtener token AGRONOMO (agronomo1)`: obtiene el token y lo guarda en `token_agronomo`.
-   - `00.00c - Obtener token OPERARIO (operario1)`: obtiene el token y lo guarda en `token_operario`.
-2. Para alternar el rol con el que se envían las peticiones manuales:
-   - Ejecutar `00.00d - Activar rol ADMIN`
-   - O ejecutar `00.00e - Activar rol AGRONOMO`
-   - O ejecutar `00.00f - Activar rol OPERARIO`
-   *(Cada una asigna su token a `access_token`, que es el que inyecta automáticamente el script de pre-request).*
-
-### Matriz de permisos (Sección 10 del documento de arquitectura)
 | Operación | ADMIN | AGRONOMO | OPERARIO |
-|---|:-:|:-:|:-:|
-| Consultar campos, catálogo y planes (GET) | ✅ | ✅ | ✅ |
-| Alta, modificación y baja de campos y lotes | ✅ | ❌ (403 Forbidden) | ❌ (403 Forbidden) |
-| Administrar catálogo agronómico (cultivos, agroquímicos, plagas, tratamientos) | ✅ | ✅ | ❌ (403 Forbidden) |
-| Crear y cancelar planes de siembra | ✅ | ✅ | ❌ (403 Forbidden) |
-| Iniciar y completar labores | ✅ | ✅ | ✅ |
+|---|---|---|---|
+| Consultar campos, lotes, catálogo y planes | Permitido | Permitido | Permitido |
+| Crear, modificar y dar de baja campos/lotes | Permitido | Denegado (`403`) | Denegado (`403`) |
+| Administrar cultivos, plagas, agroquímicos y tratamientos | Permitido | Permitido | Denegado (`403`) |
+| Crear y cancelar planes de siembra | Permitido | Permitido | Denegado (`403`) |
+| Iniciar y completar labores | Permitido | Permitido | Permitido |
+| Acceder a endpoints protegidos sin token válido | Denegado (`401`) | Denegado (`401`) | Denegado (`401`) |
 
-### Escenarios de seguridad verificados (Carpeta 07)
-1. **07.01**: El `OPERARIO` puede consultar la lista de campos por el Gateway (`200 OK`).
-2. **07.02**: El `OPERARIO` intenta crear un campo y es rechazado con `403 Forbidden`.
-3. **07.03**: El `OPERARIO` intenta crear un cultivo y es rechazado con `403 Forbidden`.
-4. **07.04**: El `AGRONOMO` intenta crear un campo y es rechazado con `403 Forbidden` (solo ADMIN).
-5. **07.05**: El `AGRONOMO` registra un cultivo con éxito (`201 Created`).
-6. **07.06**: Una petición sin token a través del Gateway es rechazada inmediatamente con `401 Unauthorized`.
+La matriz describe los permisos por rol; las colecciones prueban los casos concretos detallados abajo, sin cubrir necesariamente todas las combinaciones de método y recurso.
 
----
+## Organización y tipos de tests
 
-## 5. Datos iniciales
+Ejecutar las solicitudes en el orden guardado en cada JSON, incluidos los casos negativos intercalados en el proceso principal.
 
-La carpeta 01 crea un juego de datos controlado:
+| Carpeta | AD | AG | OP | Cobertura |
+|---|---:|---:|---:|---|
+| 00 - Preparación | 4 | 4 | 4 | Token del rol, reset de variables y healthchecks del Gateway. AG y OP también cargan sus datos de apoyo desde el environment. |
+| 01 - Datos iniciales (seed) | 14 | 10 | — | AD crea campos/lotes y catálogo; AG crea su propio catálogo. |
+| 02 - Campos y lotes | 14 | 14 | 6 | AD prueba consultas, modificaciones y validaciones; AG consulta y espera `403` en escrituras; OP solo consulta y comprueba recursos inexistentes. |
+| 03 - Agronomía | 20 | 20 | 11 | AD/AG prueban consultas, modificación de plaga y reglas del catálogo; OP prueba consultas, filtros y `404`. |
+| 04 - Proyectos: proceso principal | 31 | 31 | 19 | AD/AG crean, ejecutan, finalizan y cancelan planes; OP ejecuta labores del plan preparado y consulta resultados. |
+| 05 - Integraciones | 9 | 9 | — | Relaciones entre servicios, restricción climática mediante Open-Meteo y conservación de labores copiadas al plan. |
+| 06 - Limpieza (baja lógica) | 14 | 10 | — | AD da de baja sus datos y comprueba `404` de campo/lote; AG da de baja únicamente su catálogo. |
+| 07 - Seguridad y Roles (RBAC) | 1 | 2 | 6 | Rechazos por permisos y petición sin token. |
+| 08 - Preparar datos independientes para AG y OP | 19 | — | — | AD crea y publica los datos exclusivos de las otras dos colecciones. |
+| **Total** | **126** | **100** | **46** | |
 
-| Dato | Valores |
-|---|---|
-| Campo | `Campo E2E <timestamp>`, 120 ha |
-| Lote con coordenadas | Nro. 1, 40 ha, `TIPO_2`, lat. `-31.4201`, long. `-64.1888` |
-| Lote sin coordenadas | Nro. 2, 20 ha, `TIPO_2` |
-| Lote no apto | Nro. 3, 10 ha, `TIPO_5` |
-| Cultivo Soja | Suelos `TIPO_1`, `TIPO_2`; labores `Arar`, `Sembrar`, `Fumigar`, `Cosechar` |
-| Cultivo Maíz | Suelos `TIPO_2`, `TIPO_3`; misma secuencia |
-| Plaga | `Oruga E2E`, tipo `INSECTO` |
-| Agroquímico permisivo | `INSECTICIDA`, viento máximo 999 km/h, 1 hora libre de lluvia |
-| Agroquímico restrictivo | `INSECTICIDA`, viento máximo 0.01 km/h, 1 hora libre de lluvia |
-| Fertilizante | Tipo `FERTILIZANTE` |
-| Fungicida | Tipo `FUNGICIDA` |
-| Tratamientos | Soja + permisivo; Soja + restrictivo; Maíz + permisivo |
+Los tres healthchecks de la carpeta 00 apuntan a `{{baseUrl}}/actuator/health`. Aunque algunos nombres mencionan microservicios, verifican el endpoint del Gateway y no la salud individual de cada servicio.
 
-La carpeta 06 realiza **baja lógica**: los registros quedan inactivos, no se borran físicamente. Así se verifica que un recurso dado de baja devuelve `404` y que el histórico se conserva.
+### AD: administración y pruebas funcionales completas
 
----
+- **Casos positivos:** altas, consultas, actualizaciones, filtros y bajas lógicas; validación de estados, relaciones, superficies, suelos y secuencia de labores en los cuerpos JSON.
+- **Validaciones y reglas de negocio (`400`):** nombres duplicados, datos obligatorios, superficie ocupada, números de lote repetidos, dosis inválidas y compatibilidad entre plaga y agroquímico.
+- **Proceso de planes:** aptitud del suelo, un único plan activo por lote, transiciones de labores, tratamiento obligatorio y correspondiente al cultivo, finalización al cosechar y liberación del lote al finalizar/cancelar.
+- **Recursos inexistentes (`404`):** campos, lotes, cultivos, tratamientos y referencias inválidas al crear planes.
+- **Integraciones:** datos de campos y agronomía utilizados por proyectos, rechazo de fumigación con viento sobre el máximo y conservación de la secuencia original del plan después de modificar el cultivo.
+- **Seguridad:** la carpeta 07 espera `401` sin token; las operaciones administrativas permitidas se verifican en las carpetas funcionales.
 
-## 6. Orden de ejecución
+### AG: gestión agronómica y restricciones en campos
 
-1. **00 - Preparación**
-   - Reinicia variables.
-   - Genera `runId` y `fechaSiembra`.
-   - Verifica healthchecks de los tres servicios.
+AG reutiliza la cobertura de catálogo, planes e integraciones de AD, pero trabaja con campos/lotes preparados por ADMIN y crea su propio catálogo.
 
-2. **01 - Datos iniciales**
-   - Crea todos los datos base.
-   - Guarda los IDs en variables de colección.
+Las escrituras de la carpeta 02 están marcadas con `[AG 403]`: esperan un rechazo de autorización, incluso cuando el nombre original menciona una validación de negocio. Por ejemplo, intentar crear un campo duplicado como AG prueba `403`, no la regla de duplicados con `400`.
 
-3. **02 - Campos y lotes**
-   - Escenarios positivos y negativos de `campos-service`.
+La carpeta 07 verifica especéficamente `403` al crear un campo y `401` sin token. Su limpieza contiene diez bajas del catálogo y no elimina los campos/lotes de apoyo.
 
-4. **03 - Agronomía**
-   - Escenarios de cultivos, plagas, agroquímicos y tratamientos.
+### OP: consultas y ejecución de labores
 
-5. **04 - Proyectos: proceso principal**
-   - Crea un plan.
-   - Recorre la secuencia completa de labores.
-   - Finaliza con la cosecha.
-   - Verifica la liberación del lote.
+OP no tiene carpetas de seed, integraciones ni limpieza. Lee campos, lotes, cultivos, plagas, agroquímicos y tratamientos; comprueba filtros y recursos inexistentes; y ejecuta el plan `PLANIFICADO` creado por AD.
 
-6. **05 - Integraciones**
-   - Prueba `proyectos -> campos` y `proyectos -> agronomía`.
-   - Prueba Open-Meteo.
-   - Verifica que los cambios del catálogo no alteren planes existentes.
+En la carpeta 04 recorre `Arar → Sembrar → Fumigar → Cosechar`, iniciando y completando cada labor. También prueba secuencias/transiciones inválidas, fumigación sin tratamiento o con un tratamiento de otro cultivo, advertencia por falta de coordenadas y rechazo de cambios sobre un plan finalizado. Consulta el plan, los planes finalizados y el histórico del lote.
 
-7. **06 - Limpieza (opcional)**
-   - Da de baja lógica los datos creados.
+Los seis casos de la carpeta 07 prueban: cancelación de plan denegada (`403`), creación de plan denegada (`403`), consulta de campos permitida (`200`), creación de campo denegada (`403`), creación de cultivo denegada (`403`) y petición sin token (`401`).
 
-No se deben ejecutar las carpetas 04 y 05 sin haber ejecutado antes 01. Si se ejecuta una carpeta aislada, primero deben correrse 00 y 01.
+Un `400`, `403` o `404` esperado es un test correcto cuando coincide con la aserción del caso; no implica que la corrida haya fallado.
 
-### Ejecución con Postman
+## Environment local y variables
 
-1. Importar `AgroCampos.postman_collection.json`.
-2. Importar `AgroCampos.local.postman_environment.json`.
-3. Seleccionar el environment `Agro Campos - Local (servicios directos)`.
-4. Abrir el Collection Runner y ejecutar las carpetas en orden.
-5. Usar una iteración y, si es necesario, un delay de 100 ms.
+Importar `AgroCampos.local.postman_environment.json` y seleccionar **Agro Campos - Local (API Gateway)** para las tres colecciones.
 
-### Ejecución con Newman
+El archivo inicial contiene únicamente estas dos variables habilitadas:
+
+| Variable | Valor local | Uso |
+|---|---|---|
+| `baseUrl` | `http://localhost:8080` | Base común de `/api/v1/campos`, `/api/v1/agronomia`, `/api/v1/proyectos` y `/actuator/health`. |
+| `keycloakUrl` | `http://localhost:8081` | Obtención del token del rol. |
+
+Las colecciones también definen estas URLs como valores locales de respaldo. Al seleccionar el environment, sus valores tienen prioridad. No se utilizan las antiguas variables `gatewayUrl`, `camposUrl`, `agronomiaUrl` ni `proyectosUrl`.
+
+### Variables generadas durante la corrida
+
+| ámbito | Variables | Origen y propósito |
+|---|---|---|
+| Colección | `access_token` | Autenticación exclusiva del rol. |
+| Colección | `runId`, `fechaSiembra`, nombres de entidades | Reset de preparación y scripts de seed; fecha de siembra a siete días y nombres con marca de tiempo. |
+| Colección | `campoId`, `loteId`, `loteSinCoordsId`, `loteNoAptoId` | Respuestas del seed de AD o carga de datos de apoyo en AG/OP. |
+| Colección | `cultivoId`, `cultivoMaizId`, `plagaId`, IDs de agroquímicos y tratamientos | Seed propio en AD/AG; datos preparados por AD en OP. |
+| Colección | `planId`, IDs de labores, `plan2Id`, `plan3Id`, `planClimaId` y labores climáticas | Respuestas de proyectos según los escenarios presentes en cada colección. |
+| Environment | `AG_campoId`, `AG_campoNombre`, `AG_loteId`, `AG_loteSinCoordsId`, `AG_loteNoAptoId` | Carpeta 08 de AD: campo y tres lotes exclusivos para AG. |
+| Environment | Variables con prefijo `OP_` | Carpeta 08 de AD: campo/lotes, catálogo, nombres de campo/cultivo, plan e IDs de sus cuatro labores para OP. |
+
+Los prefijos `AG_` y `OP_` se agregan al environment durante la ejecución; no vienen precargados en el archivo inicial. La solicitud `00.01` de AG/OP reinicia sus variables y copia las correspondientes a su rol a variables de colección sin prefijo. Si falta un dato requerido, el script indica que primero debe ejecutarse AD, carpeta 08.
+
+## Preparación de datos y limpieza
+
+El seed de AD incluye un campo de 120 ha y tres lotes: uno con coordenadas y suelo `TIPO_2`, otro sin coordenadas con suelo `TIPO_2` y uno no apto para soja con suelo `TIPO_5`. El catálogo incluye soja y maíz, una plaga `INSECTO`, insecticidas permisivo/restrictivo, fertilizante, fungicida y tres tratamientos para probar compatibilidad y lámites climáticos.
+
+La carpeta 08 de AD crea **otros juegos de datos independientes**: campo y lotes para AG; campo, lotes, catálogo y un plan en lote sin coordenadas para OP. Esto evita que la limpieza de AD o AG elimine los datos usados por la otra colección.
+
+La carpeta 06 realiza bajas lógicas y puede omitirse si se necesita inspeccionar los datos al terminar. Los datos de apoyo creados en 08 permanecen disponibles y su baja corresponde a ADMIN; las colecciones no incluyen una limpieza automática de esos juegos de apoyo.
+
+La prueba climática de AD/AG consulta Open-Meteo mediante el flujo de proyectos y espera `400` con el mensaje `No se puede fumigar` usando un lámite de viento de 0.01 km/h. Su resultado depende de la disponibilidad de la integración y de las condiciones climáticas consultadas. El flujo principal sin coordenadas verifica el caso de advertencia sin esa consulta climática.
+
+## Orden de ejecución en Postman
+
+1. Importar las tres colecciones y el environment local.
+2. Seleccionar **Agro Campos - Local (API Gateway)**.
+3. Ejecutar **AD completa**, desde 00 hasta 08, con una iteración. La carpeta 08 debe terminar correctamente antes de iniciar AG u OP.
+4. Ejecutar **AG completa**, respetando el orden de sus carpetas.
+5. Ejecutar **OP completa**, respetando el orden de sus carpetas.
+
+AG y OP usan datos independientes: una vez preparada la carpeta 08, no dependen entre sí. No ejecutar carpetas aisladas sin sus datos previos. La carpeta 00 empieza obteniendo el token y luego realiza el reset/carga de variables.
+
+Para preparar solo los datos de apoyo, ejecutar las carpetas **00 y 08 de AD**, en ese orden. Luego pueden correrse AG y OP sin ejecutar el resto de AD.
+
+**OP debe ejecutarse una sola vez por plan preparado:** la cosecha lo deja `FINALIZADO`. Para repetir una corrida completa, volver a ejecutar 00 y 08 de AD (o AD completa) y luego la colección deseada. Reiniciar las variables de OP no reinicia el estado del plan en el servidor. Cada nueva preparación crea datos adicionales.
+
+## Ejecución con Newman
+
+Con Newman instalado, ejecutar desde este directorio. AD debe exportar el environment actualizado para que los procesos posteriores reciban los IDs con prefijos `AG_` y `OP_`:
 
 ```bash
-newman run AgroCampos.postman_collection.json \
-  -e AgroCampos.local.postman_environment.json \
-  --reporters cli,htmlextra
+newman run AgroCampos.postman_collection.json -e AgroCampos.local.postman_environment.json --export-environment AgroCampos.ejecucion.postman_environment.json
+newman run AgroCampos.AG.postman_collection.json -e AgroCampos.ejecucion.postman_environment.json
+newman run AgroCampos.OP.postman_collection.json -e AgroCampos.ejecucion.postman_environment.json
 ```
 
----
+Revisar el resultado de cada comando antes de continuar. El archivo `AgroCampos.ejecucion.postman_environment.json` se genera con la corrida de AD; no es un archivo de entrada incluido en esta entrega. Cada colección obtiene su propio token al comenzar, por lo que no es necesario exportar tokens entre ejecuciones.
 
-## 7. Endpoints cubiertos
+Para ejecutar únicamente la preparación de apoyo de AD:
 
-### `campos-service` — `/api/v1/campos`
-
-| Método | URI | Escenario |
-|---|---|---|
-| `GET` | `/campos` | Listar campos activos |
-| `GET` | `/campos/{id}` | Obtener campo |
-| `POST` | `/campos` | Crear campo |
-| `PUT` | `/campos/{id}` | Actualizar campo |
-| `DELETE` | `/campos/{id}` | Baja lógica de campo |
-| `GET` | `/campos/{id}/lotes` | Listar lotes activos |
-| `GET` | `/campos/{id}/lotes/{loteId}` | Obtener lote |
-| `POST` | `/campos/{id}/lotes` | Agregar lote |
-| `PUT` | `/campos/{id}/lotes/{loteId}` | Actualizar lote |
-| `DELETE` | `/campos/{id}/lotes/{loteId}` | Baja lógica de lote |
-
-### `agronomia-service` — `/api/v1/agronomia`
-
-| Método | URI |
-|---|---|
-| `GET` / `POST` | `/cultivos` |
-| `GET` / `PUT` / `DELETE` | `/cultivos/{id}` |
-| `GET` / `POST` | `/plagas` |
-| `GET` / `PUT` / `DELETE` | `/plagas/{id}` |
-| `GET` / `POST` | `/agroquimicos` |
-| `GET` / `PUT` / `DELETE` | `/agroquimicos/{id}` |
-| `GET` / `POST` | `/tratamientos` |
-| `GET` / `PUT` / `DELETE` | `/tratamientos/{id}` |
-| `GET` | `/tratamientos?plagaId=&cultivoId=` |
-
-### `proyectos-service` — `/api/v1/proyectos`
-
-| Método | URI |
-|---|---|
-| `POST` | `/planes` |
-| `GET` | `/planes` |
-| `GET` | `/planes?estado=` |
-| `GET` | `/planes/{id}` |
-| `GET` | `/lotes/{loteId}/planes` |
-| `PATCH` | `/planes/{id}` |
-| `PATCH` | `/planes/{planId}/labores/{laborId}` |
-
----
-
-## 8. Escenarios positivos y negativos
-
-### 8.1 Campos y lotes
-
-| Código | Escenario | Resultado esperado | Regla |
-|---|---|---|---|
-| CAM-P01 | Crear campo válido | `201`, campo activo, `cantidadLotes = 0` | — |
-| CAM-P02 | Listar y obtener campo | `200`, incluye el campo creado | — |
-| CAM-P03 | Actualizar campo | `200`, superficie actualizada | — |
-| CAM-P04 | Agregar lote válido | `201`, lote asociado al campo | — |
-| CAM-P05 | Listar y obtener lote | `200`, tipo de suelo correcto | — |
-| CAM-P06 | Actualizar lote | `200`, hectáreas actualizadas | — |
-| CAM-P07 | Baja lógica de lote | `204` y luego `404` | — |
-| CAM-P08 | Baja lógica de campo | `204` y luego `404` | — |
-| CAM-N01 | Crear campo con nombre duplicado, distinta capitalización | `400` “Ya existe un campo” | RN-CAM-01 |
-| CAM-N02 | Crear campo con nombre vacío y superficie 0 | `400` con errores por campo | Validación |
-| CAM-N03 | Repetir número de lote en el mismo campo | `400` “ya existe” | RN-CAM-03 |
-| CAM-N04 | Agregar lote que excede la superficie total | `400` “Superficie excedida” | RN-CAM-02 |
-| CAM-N05 | Actualizar campo con superficie menor a la ocupada por lotes | `400` “Superficie inválida” | RN-CAM-02 |
-| CAM-N06 | Actualizar lote con número duplicado | `400` “ya existe” | RN-CAM-03 |
-| CAM-N07 | Obtener campo inexistente | `404` | — |
-| CAM-N08 | Obtener lote inexistente | `404` | — |
-
-### 8.2 Agronomía
-
-| Código | Escenario | Resultado esperado | Regla |
-|---|---|---|---|
-| AGR-P01 | Listar y obtener cultivos | `200`, incluye `suelosAptos` y `labores` ordenadas | — |
-| AGR-P02 | Crear y actualizar plaga | `201` / `200` | — |
-| AGR-P03 | Listar, obtener y actualizar agroquímicos | `200`, conserva límites climáticos | — |
-| AGR-P04 | Crear tratamiento válido | `201`, incluye plaga, agroquímico y cultivo | — |
-| AGR-P05 | Listar tratamientos y filtrar por plaga/cultivo | `200`, devuelve el tratamiento esperado | — |
-| AGR-P06 | Obtener tratamiento | `200`, incluye límites del agroquímico | — |
-| AGR-N01 | Crear agroquímico con nombre comercial duplicado | `400` “Ya existe un agroquímico” | RN-TRA-01 |
-| AGR-N02 | Crear tratamiento con dosis 0 | `400` error de dosis | RN-TRA-02 |
-| AGR-N03 | Crear tratamiento con fertilizante | `400` “Un fertilizante no combate ninguna plaga” | RN-TRA-04 |
-| AGR-N04 | Plaga `INSECTO` con agroquímico `FUNGICIDA` | `400` “debe utilizarse un INSECTICIDA” | RN-TRA-04 |
-| AGR-N05 | Tratamiento con plaga inexistente | `404` | — |
-| AGR-N06 | Cultivo sin suelos aptos | `400` con error en `suelosAptos` | Validación |
-| AGR-N07 | Plaga sin tipo | `400` con error en `tipoPlaga` | Validación |
-| AGR-N08 | Tratamiento sin IDs obligatorios | `400` con errores en `plagaId`, `agroquimicoId`, `cultivoId` | Validación |
-| AGR-N09 | Obtener cultivo o tratamiento inexistente | `404` | — |
-
-### 8.3 Proyectos: proceso principal
-
-| Código | Escenario | Resultado esperado | Regla |
-|---|---|---|---|
-| PRO-P01 | Crear plan en lote apto | `201`, estado `PLANIFICADO`, labores copiadas del cultivo | RN-LAB-01 |
-| PRO-P02 | Iniciar y completar `Arar` | `200`, plan pasa a `EN_CURSO` | RN-LAB-03 |
-| PRO-P03 | Iniciar y completar `Sembrar` | `200`, labor `COMPLETADA` | RN-LAB-03 |
-| PRO-P04 | Iniciar `Fumigar` en lote sin coordenadas | `200`, labor `EN_EJECUCION` y advertencia climática | RN-LAB-05 |
-| PRO-P05 | Completar `Fumigar` | `200` | RN-LAB-03 |
-| PRO-P06 | Iniciar y completar `Cosechar` | `200`, plan `FINALIZADO` | RN-LAB-04 |
-| PRO-P07 | Crear nuevo plan tras finalizar | `201`, el lote quedó libre | RN-LAB-02 |
-| PRO-P08 | Cancelar plan y crear otro en el mismo lote | `200` / `201`, el lote quedó libre | RN-LAB-02 |
-| PRO-P09 | Consultar plan, planes por estado e histórico del lote | `200` | — |
-| PRO-N01 | Crear plan en lote `TIPO_5` para cultivo de `TIPO_1/TIPO_2` | `400` “no es apto” | RN-LAB-01 |
-| PRO-N02 | Crear segundo plan activo en el mismo lote | `400` “ya tiene un plan activo” | RN-LAB-02 |
-| PRO-N03 | Iniciar `Fumigar` sin completar `Sembrar` | `400` “primero debe completarse” | RN-LAB-03 |
-| PRO-N04 | Volver una labor a `PENDIENTE` | `400` transición no permitida | RN-LAB-03 |
-| PRO-N05 | Completar una labor sin iniciarla | `400` “debe estar EN_EJECUCION” | RN-LAB-03 |
-| PRO-N06 | Iniciar fumigación sin `tratamientoId` | `400` “debe indicar el tratamientoId” | RN-LAB-05 |
-| PRO-N07 | Fumigar con tratamiento de otro cultivo | `400` “no corresponde al cultivo del plan” | RN-LAB-05 |
-| PRO-N08 | Fumigar con viento superior al máximo | `400` “No se puede fumigar” | RN-LAB-05 |
-| PRO-N09 | Cancelar un plan `FINALIZADO` | `400` “no puede cancelarse” | RN-LAB-04 |
-| PRO-N10 | Iniciar labor de un plan `FINALIZADO` | `400` “no admite cambios” | RN-LAB-03 |
-| PRO-N11 | Listar planes con estado inválido | `400` parámetro inválido | — |
-| PRO-N12 | Crear plan con fecha pasada | `400` error en `fechaSiembraPrevista` | Validación |
-| PRO-N13 | Crear plan con lote o cultivo inexistente | `404` | — |
-
-### 8.4 Integraciones
-
-| Código | Escenario | Resultado esperado |
-|---|---|---|
-| INT-P01 | `proyectos-service` consulta el lote en `campos-service` al crear un plan | Plan creado con `campoId` y `loteId` correctos |
-| INT-P02 | `proyectos-service` consulta el cultivo y sus labores en `agronomia-service` | Labores copiadas en el orden del cultivo |
-| INT-P03 | `proyectos-service` consulta el tratamiento y los límites del agroquímico | Se aplica RN-LAB-05 con los límites del producto |
-| INT-P04 | Cambiar la secuencia de labores del cultivo después de crear el plan | El plan existente conserva sus labores originales |
-| INT-N01 | Open-Meteo devuelve viento superior al máximo | `400`, la labor queda `PENDIENTE` |
-| INT-N02 | Open-Meteo prevé lluvia dentro de las horas requeridas | `400` |
-| INT-N03 | Open-Meteo no responde | `200` con advertencia; la fumigación se habilita |
-| INT-N04 | Lote sin coordenadas | `200` con advertencia; no se consulta el clima |
-| INT-N05 | `campos-service` caído al crear un plan | `503` |
-| INT-N06 | `agronomia-service` caído al crear o fumigar | `503` |
-| INT-N07 | Gateway enruta `/api/v1/campos/**` | `200` a través de `http://localhost:8080` |
-
-Los escenarios INT-N05, INT-N06 e INT-N03 requieren una prueba manual controlada: detener el servicio correspondiente o configurar una URL inválida. En la entrega se documenta el procedimiento y el resultado esperado.
-
----
-
-## 9. Consideraciones sobre Open-Meteo
-
-Los escenarios de clima dependen de un proveedor externo y no son completamente deterministas.
-
-La colección incluye:
-
-- Un escenario negativo de viento con un agroquímico de umbral `0.01 km/h`, que en condiciones normales devuelve `400`.
-- Un escenario positivo sin coordenadas, que no consulta Open-Meteo y devuelve `200` con advertencia.
-
-Para pruebas deterministas se propone:
-
-1. Levantar un stub local de Open-Meteo.
-2. Configurar `clima.open-meteo.base-url` para apuntar al stub.
-3. Definir dos respuestas:
-   - favorable: viento bajo y sin lluvia;
-   - desfavorable: viento alto o lluvia dentro de la ventana.
-4. Ejecutar los escenarios de clima contra el stub.
-5. Mantener el pronóstico real como smoke test, registrando fecha y resultado.
-
-Si Open-Meteo no responde, `proyectos-service` habilita la fumigación y devuelve una advertencia. El test de viento fallará en ese caso, lo que indica que debe repetirse o ejecutarse contra el stub.
-
----
-
-## 10. Criterios de aceptación
-
-Se considera que la colección está correctamente entregada cuando:
-
-1. Se importa en Postman sin errores y el environment se selecciona correctamente.
-2. Las carpetas 00 y 01 crean los datos iniciales y capturan los IDs.
-3. Las carpetas 02, 03 y 04 ejecutan todos sus tests con resultado exitoso en un entorno local con los tres servicios levantados.
-4. Los escenarios de error devuelven los códigos HTTP y mensajes esperados.
-5. La carpeta 05 verifica las integraciones y documenta el resultado de Open-Meteo.
-6. La carpeta 06 deja los datos dados de baja lógicamente.
-7. Se entrega el reporte de Newman o la captura del Collection Runner como evidencia.
+```bash
+newman run AgroCampos.postman_collection.json -e AgroCampos.local.postman_environment.json --folder "00 - Preparacion" --folder "08 - Preparar datos independientes para AG y OP" --export-environment AgroCampos.ejecucion.postman_environment.json
+```

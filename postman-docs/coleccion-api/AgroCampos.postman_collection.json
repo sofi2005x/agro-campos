@@ -1,8 +1,8 @@
 {
   "info": {
-    "_postman_id": "b01e708a-3d8b-4d16-8637-c372e5f6169f",
-    "name": "Agro Campos - API E2E",
-    "description": "Coleccion ejecutable de endpoints y escenarios positivos/negativos de Agro Campos. Ejecutar las carpetas en orden: 00, 01, 02, 03, 04, 05 y, opcionalmente, 06. Ver README.md para variables, autenticacion, datos iniciales y matriz de escenarios.",
+    "_postman_id": "45a1d0eb-9d3a-40ff-99f3-feb0644a9365",
+    "name": "Agro Campos - AD - ADMIN",
+    "description": "Colecci?n exclusiva del rol AD. Ver README.md para preparaci?n y orden de ejecuci?n.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -14,7 +14,7 @@
       "script": {
         "type": "text/javascript",
         "exec": [
-          "const token = pm.environment.get(\"access_token\");",
+          "const token = pm.collectionVariables.get(\"access_token\");",
           "const isAuthRequest = pm.info.requestName.startsWith(\"00.00\");",
           "const hasExplicitAuth = pm.request.headers.has(\"Authorization\");",
           "if (!isAuthRequest && !hasExplicitAuth && token && String(token).trim().length > 0) {",
@@ -216,6 +216,11 @@
       "key": "climaFumigarId",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -226,17 +231,23 @@
           "name": "00.00a - Obtener token ADMIN (admin1)",
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.unset(\"access_token\");"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Token ADMIN obtenido (200 OK)\", function () {",
-                  "  pm.response.to.have.status(200);",
-                  "  const response = pm.response.json();",
-                  "  pm.expect(response.access_token).to.be.a(\"string\").and.not.empty;",
-                  "  pm.environment.set(\"token_admin\", response.access_token);",
-                  "  pm.environment.set(\"access_token\", response.access_token);",
-                  "});"
+                  "pm.test(\"Token obtenido (200)\", () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test(\"JWT presente\", () => pm.expect(b.access_token).to.be.a(\"string\").and.not.empty);",
+                  "if (pm.response.code === 200 && b.access_token) pm.collectionVariables.set(\"access_token\", b.access_token);"
                 ]
               }
             }
@@ -279,269 +290,7 @@
               ]
             },
             "url": "{{keycloakUrl}}/realms/bda-realm/protocol/openid-connect/token",
-            "description": "Obtiene un JWT de Keycloak para el rol ADMIN (admin1) y lo guarda en token_admin y access_token."
-          }
-        },
-        {
-          "name": "00.00b - Obtener token AGRONOMO (agronomo1)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Token AGRONOMO obtenido (200 OK)\", function () {",
-                  "  pm.response.to.have.status(200);",
-                  "  const response = pm.response.json();",
-                  "  pm.expect(response.access_token).to.be.a(\"string\").and.not.empty;",
-                  "  pm.environment.set(\"token_agronomo\", response.access_token);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "noauth"
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/x-www-form-urlencoded",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "urlencoded",
-              "urlencoded": [
-                {
-                  "key": "grant_type",
-                  "value": "password",
-                  "type": "text"
-                },
-                {
-                  "key": "client_id",
-                  "value": "agro-campos-client",
-                  "type": "text"
-                },
-                {
-                  "key": "username",
-                  "value": "agronomo1",
-                  "type": "text"
-                },
-                {
-                  "key": "password",
-                  "value": "agronomo1",
-                  "type": "text"
-                }
-              ]
-            },
-            "url": "{{keycloakUrl}}/realms/bda-realm/protocol/openid-connect/token",
-            "description": "Obtiene un JWT de Keycloak para el rol AGRONOMO (agronomo1) y lo guarda en token_agronomo."
-          }
-        },
-        {
-          "name": "00.00c - Obtener token OPERARIO (operario1)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Token OPERARIO obtenido (200 OK)\", function () {",
-                  "  pm.response.to.have.status(200);",
-                  "  const response = pm.response.json();",
-                  "  pm.expect(response.access_token).to.be.a(\"string\").and.not.empty;",
-                  "  pm.environment.set(\"token_operario\", response.access_token);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "noauth"
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/x-www-form-urlencoded",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "urlencoded",
-              "urlencoded": [
-                {
-                  "key": "grant_type",
-                  "value": "password",
-                  "type": "text"
-                },
-                {
-                  "key": "client_id",
-                  "value": "agro-campos-client",
-                  "type": "text"
-                },
-                {
-                  "key": "username",
-                  "value": "operario1",
-                  "type": "text"
-                },
-                {
-                  "key": "password",
-                  "value": "operario1",
-                  "type": "text"
-                }
-              ]
-            },
-            "url": "{{keycloakUrl}}/realms/bda-realm/protocol/openid-connect/token",
-            "description": "Obtiene un JWT de Keycloak para el rol OPERARIO (operario1) y lo guarda en token_operario."
-          }
-        },
-        {
-          "name": "00.00d - Activar rol ADMIN para las peticiones",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "const t = pm.environment.get(\"token_admin\");",
-                  "if (!t || t.trim().length === 0) {",
-                  "  console.warn(\"No hay token guardado para ADMIN. Ejecuta primero la solicitud para obtener su token.\");",
-                  "} else {",
-                  "  pm.environment.set(\"access_token\", t);",
-                  "  console.log(\"Rol activo establecido a ADMIN\");",
-                  "}"
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Rol activo ADMIN asignado a access_token\", function () {",
-                  "  const activeToken = pm.environment.get(\"access_token\");",
-                  "  const roleToken = pm.environment.get(\"token_admin\");",
-                  "  pm.expect(activeToken).to.equal(roleToken);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "noauth"
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": "{{baseUrl}}/actuator/health",
-            "description": "Asigna el token_admin a access_token para que todas las peticiones subsiguientes se ejecuten bajo el rol ADMIN."
-          }
-        },
-        {
-          "name": "00.00e - Activar rol AGRONOMO para las peticiones",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "const t = pm.environment.get(\"token_agronomo\");",
-                  "if (!t || t.trim().length === 0) {",
-                  "  console.warn(\"No hay token guardado para AGRONOMO. Ejecuta primero la solicitud para obtener su token.\");",
-                  "} else {",
-                  "  pm.environment.set(\"access_token\", t);",
-                  "  console.log(\"Rol activo establecido a AGRONOMO\");",
-                  "}"
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Rol activo AGRONOMO asignado a access_token\", function () {",
-                  "  const activeToken = pm.environment.get(\"access_token\");",
-                  "  const roleToken = pm.environment.get(\"token_agronomo\");",
-                  "  pm.expect(activeToken).to.equal(roleToken);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "noauth"
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": "{{baseUrl}}/actuator/health",
-            "description": "Asigna el token_agronomo a access_token para que todas las peticiones subsiguientes se ejecuten bajo el rol AGRONOMO."
-          }
-        },
-        {
-          "name": "00.00f - Activar rol OPERARIO para las peticiones",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "const t = pm.environment.get(\"token_operario\");",
-                  "if (!t || t.trim().length === 0) {",
-                  "  console.warn(\"No hay token guardado para OPERARIO. Ejecuta primero la solicitud para obtener su token.\");",
-                  "} else {",
-                  "  pm.environment.set(\"access_token\", t);",
-                  "  console.log(\"Rol activo establecido a OPERARIO\");",
-                  "}"
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Rol activo OPERARIO asignado a access_token\", function () {",
-                  "  const activeToken = pm.environment.get(\"access_token\");",
-                  "  const roleToken = pm.environment.get(\"token_operario\");",
-                  "  pm.expect(activeToken).to.equal(roleToken);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "noauth"
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": "{{baseUrl}}/actuator/health",
-            "description": "Asigna el token_operario a access_token para que todas las peticiones subsiguientes se ejecuten bajo el rol OPERARIO."
+            "description": "Obtiene solamente el token de este rol y lo guarda en variables de esta colecci?n."
           }
         },
         {
@@ -4447,207 +4196,6 @@
       "description": "Verificacion de autorizacion por roles (ADMIN, AGRONOMO, OPERARIO) y token requerido a traves del API Gateway segun la Seccion 10 del documento de arquitectura.",
       "item": [
         {
-          "name": "07.01 [RBAC-01 / Permiso] Operario consulta campos por Gateway (200 OK)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token_operario}}",
-                "type": "text"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": "{{baseUrl}}/api/v1/campos",
-            "description": "El rol OPERARIO tiene permisos de lectura para consultar campos (GET)."
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Operario puede consultar campos (200 OK)\", function () {",
-                  "  pm.response.to.have.status(200);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "07.02 [RBAC-02 / 403 Forbidden] Operario intenta crear campo por Gateway (403 Forbidden)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token_operario}}",
-                "type": "text"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Campo Intento Operario {{runId}}\",\n  \"superficieTotalHas\": 100.0\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": "{{baseUrl}}/api/v1/campos",
-            "description": "El rol OPERARIO NO tiene permisos de escritura en campos (solo ADMIN). Debe retornar 403 Forbidden."
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Operario es rechazado al crear campo (403 Forbidden)\", function () {",
-                  "  pm.response.to.have.status(403);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "07.03 [RBAC-03 / 403 Forbidden] Operario intenta crear cultivo por Gateway (403 Forbidden)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token_operario}}",
-                "type": "text"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Cultivo Rechazado Operario {{runId}}\",\n  \"suelosAptos\": [\"TIPO_1\"],\n  \"labores\": [\"Arar\", \"Sembrar\", \"Cosechar\"]\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": "{{baseUrl}}/api/v1/agronomia/cultivos",
-            "description": "El rol OPERARIO NO puede administrar catalogo (solo ADMIN y AGRONOMO). Debe retornar 403 Forbidden."
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Operario es rechazado al crear cultivo (403 Forbidden)\", function () {",
-                  "  pm.response.to.have.status(403);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "07.04 [RBAC-04 / 403 Forbidden] Agronomo intenta crear campo por Gateway (403 Forbidden)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token_agronomo}}",
-                "type": "text"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Campo Intento Agronomo {{runId}}\",\n  \"superficieTotalHas\": 100.0\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": "{{baseUrl}}/api/v1/campos",
-            "description": "El rol AGRONOMO NO puede dar de alta campos (solo ADMIN). Debe retornar 403 Forbidden."
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Agronomo es rechazado al crear campo (403 Forbidden)\", function () {",
-                  "  pm.response.to.have.status(403);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "07.05 [RBAC-05 / Permiso] Agronomo registra cultivo por Gateway (201 Created)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token_agronomo}}",
-                "type": "text"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Girasol Agronomo {{runId}}\",\n  \"suelosAptos\": [\"TIPO_1\", \"TIPO_2\"],\n  \"labores\": [\"Arar\", \"Sembrar\", \"Cosechar\"]\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": "{{baseUrl}}/api/v1/agronomia/cultivos",
-            "description": "El rol AGRONOMO SI puede administrar catalogo (ADMIN y AGRONOMO). Debe retornar 201 Created."
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Agronomo registra cultivo con exito (201 Created)\", function () {",
-                  "  pm.response.to.have.status(201);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
           "name": "07.06 [RBAC-06 / 401 Unauthorized] Peticion sin token al Gateway (401 Unauthorized)",
           "request": {
             "method": "GET",
@@ -4675,6 +4223,954 @@
                   "pm.test(\"Gateway rechaza peticion sin token (401 Unauthorized)\", function () {",
                   "  pm.response.to.have.status(401);",
                   "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "08 - Preparar datos independientes para AG y OP",
+      "item": [
+        {
+          "name": "AG_ - 01.01 [CAM-SEED] Crear campo base",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/campos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"{{AG_campoNombre}}\",\"superficieTotalHas\":120.0}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"AG_campoNombre\", \"Campo E2E \" + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"AG_campoId\", b.id);",
+                  "pm.test(\"campo activo y sin lotes\", () => {",
+                  "  pm.expect(b.activo).to.eql(true);",
+                  "  pm.expect(b.cantidadLotes).to.eql(0);",
+                  "});",
+                  "if (pm.response.code === 201) pm.environment.set(\"AG_campoId\", pm.collectionVariables.get(\"AG_campoId\"));",
+                  "if (pm.response.code === 201) pm.environment.set(\"AG_campoNombre\", pm.collectionVariables.get(\"AG_campoNombre\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "AG_ - 01.02 [CAM-SEED] Crear lote con coordenadas (TIPO_2, 40 ha)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/campos/{{AG_campoId}}/lotes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nroLote\":1,\"hectareas\":40.0,\"latitud\":-31.4201,\"longitud\":-64.1888,\"tipoSuelo\":\"TIPO_2\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"AG_loteId\", b.id);",
+                  "pm.test(\"lote TIPO_2 con coordenadas\", () => {",
+                  "  pm.expect(b.tipoSuelo).to.eql(\"TIPO_2\");",
+                  "  pm.expect(b.latitud).to.be.a(\"number\");",
+                  "});",
+                  "if (pm.response.code === 201) pm.environment.set(\"AG_loteId\", pm.collectionVariables.get(\"AG_loteId\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "AG_ - 01.03 [CAM-SEED] Crear lote sin coordenadas (TIPO_2, 20 ha)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/campos/{{AG_campoId}}/lotes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nroLote\":2,\"hectareas\":20.0,\"tipoSuelo\":\"TIPO_2\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"AG_loteSinCoordsId\", b.id);",
+                  "pm.test(\"lote sin coordenadas\", () => {",
+                  "  pm.expect(b.latitud).to.eql(null);",
+                  "  pm.expect(b.longitud).to.eql(null);",
+                  "});",
+                  "if (pm.response.code === 201) pm.environment.set(\"AG_loteSinCoordsId\", pm.collectionVariables.get(\"AG_loteSinCoordsId\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "AG_ - 01.04 [CAM-SEED] Crear lote no apto para soja (TIPO_5, 10 ha)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/campos/{{AG_campoId}}/lotes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nroLote\":3,\"hectareas\":10.0,\"latitud\":-31.43,\"longitud\":-64.19,\"tipoSuelo\":\"TIPO_5\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"AG_loteNoAptoId\", b.id);",
+                  "pm.test(\"lote TIPO_5\", () => pm.expect(b.tipoSuelo).to.eql(\"TIPO_5\"));",
+                  "if (pm.response.code === 201) pm.environment.set(\"AG_loteNoAptoId\", pm.collectionVariables.get(\"AG_loteNoAptoId\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "OP_ - 01.01 [CAM-SEED] Crear campo base",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/campos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"{{OP_campoNombre}}\",\"superficieTotalHas\":120.0}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"OP_campoNombre\", \"Campo E2E \" + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"OP_campoId\", b.id);",
+                  "pm.test(\"campo activo y sin lotes\", () => {",
+                  "  pm.expect(b.activo).to.eql(true);",
+                  "  pm.expect(b.cantidadLotes).to.eql(0);",
+                  "});",
+                  "if (pm.response.code === 201) pm.environment.set(\"OP_campoId\", pm.collectionVariables.get(\"OP_campoId\"));",
+                  "if (pm.response.code === 201) pm.environment.set(\"OP_campoNombre\", pm.collectionVariables.get(\"OP_campoNombre\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "OP_ - 01.02 [CAM-SEED] Crear lote con coordenadas (TIPO_2, 40 ha)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/campos/{{OP_campoId}}/lotes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nroLote\":1,\"hectareas\":40.0,\"latitud\":-31.4201,\"longitud\":-64.1888,\"tipoSuelo\":\"TIPO_2\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"OP_loteId\", b.id);",
+                  "pm.test(\"lote TIPO_2 con coordenadas\", () => {",
+                  "  pm.expect(b.tipoSuelo).to.eql(\"TIPO_2\");",
+                  "  pm.expect(b.latitud).to.be.a(\"number\");",
+                  "});",
+                  "if (pm.response.code === 201) pm.environment.set(\"OP_loteId\", pm.collectionVariables.get(\"OP_loteId\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "OP_ - 01.03 [CAM-SEED] Crear lote sin coordenadas (TIPO_2, 20 ha)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/campos/{{OP_campoId}}/lotes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nroLote\":2,\"hectareas\":20.0,\"tipoSuelo\":\"TIPO_2\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"OP_loteSinCoordsId\", b.id);",
+                  "pm.test(\"lote sin coordenadas\", () => {",
+                  "  pm.expect(b.latitud).to.eql(null);",
+                  "  pm.expect(b.longitud).to.eql(null);",
+                  "});",
+                  "if (pm.response.code === 201) pm.environment.set(\"OP_loteSinCoordsId\", pm.collectionVariables.get(\"OP_loteSinCoordsId\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "OP_ - 01.04 [CAM-SEED] Crear lote no apto para soja (TIPO_5, 10 ha)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/campos/{{OP_campoId}}/lotes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nroLote\":3,\"hectareas\":10.0,\"latitud\":-31.43,\"longitud\":-64.19,\"tipoSuelo\":\"TIPO_5\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"OP_loteNoAptoId\", b.id);",
+                  "pm.test(\"lote TIPO_5\", () => pm.expect(b.tipoSuelo).to.eql(\"TIPO_5\"));",
+                  "if (pm.response.code === 201) pm.environment.set(\"OP_loteNoAptoId\", pm.collectionVariables.get(\"OP_loteNoAptoId\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "OP_ - 01.05 [AGR-SEED] Crear cultivo Soja",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/agronomia/cultivos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"{{OP_cultivoNombre}}\",\"suelosAptos\":[\"TIPO_1\",\"TIPO_2\"],\"labores\":[\"Arar\",\"Sembrar\",\"Fumigar\",\"Cosechar\"]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"OP_cultivoNombre\", \"Soja E2E \" + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"OP_cultivoId\", b.id);",
+                  "pm.test(\"cultivo con 4 labores ordenadas\", () => {",
+                  "  pm.expect(b.labores).to.eql([\"Arar\",\"Sembrar\",\"Fumigar\",\"Cosechar\"]);",
+                  "});",
+                  "if (pm.response.code === 201) pm.environment.set(\"OP_cultivoId\", pm.collectionVariables.get(\"OP_cultivoId\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "OP_ - 01.06 [AGR-SEED] Crear cultivo Maiz (para tratamiento cruzado)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/agronomia/cultivos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"{{OP_cultivoMaizNombre}}\",\"suelosAptos\":[\"TIPO_2\",\"TIPO_3\"],\"labores\":[\"Arar\",\"Sembrar\",\"Fumigar\",\"Cosechar\"]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"OP_cultivoMaizNombre\", \"Maiz E2E \" + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"OP_cultivoMaizId\", b.id);",
+                  "if (pm.response.code === 201) pm.environment.set(\"OP_cultivoMaizId\", pm.collectionVariables.get(\"OP_cultivoMaizId\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "OP_ - 01.07 [AGR-SEED] Crear plaga INSECTO",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/agronomia/plagas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"{{OP_plagaNombre}}\",\"descripcion\":\"Larva defoliadora\",\"tipoPlaga\":\"INSECTO\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"OP_plagaNombre\", \"Oruga E2E \" + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"OP_plagaId\", b.id);",
+                  "pm.test(\"tipo INSECTO\", () => pm.expect(b.tipoPlaga).to.eql(\"INSECTO\"));",
+                  "if (pm.response.code === 201) pm.environment.set(\"OP_plagaId\", pm.collectionVariables.get(\"OP_plagaId\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "OP_ - 01.08 [AGR-SEED] Crear insecticida permisivo (viento 999)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/agronomia/agroquimicos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombreComercial\":\"{{OP_agroquimicoNombre}}\",\"principioActivo\":\"Clorantraniliprol\",\"tipo\":\"INSECTICIDA\",\"vientoMaximoPermitidoKmH\":999.0,\"horasLibresDeLluviaRequeridas\":1}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"OP_agroquimicoNombre\", \"Insecticida Permisivo E2E \" + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"OP_agroquimicoId\", b.id);",
+                  "pm.test(\"limites climaticos guardados\", () => {",
+                  "  pm.expect(b.vientoMaximoPermitidoKmH).to.eql(999);",
+                  "  pm.expect(b.horasLibresDeLluviaRequeridas).to.eql(1);",
+                  "});",
+                  "if (pm.response.code === 201) pm.environment.set(\"OP_agroquimicoId\", pm.collectionVariables.get(\"OP_agroquimicoId\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "OP_ - 01.09 [AGR-SEED] Crear insecticida restrictivo (viento 0.01)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/agronomia/agroquimicos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombreComercial\":\"{{OP_agroquimicoRestrictivoNombre}}\",\"principioActivo\":\"Prueba\",\"tipo\":\"INSECTICIDA\",\"vientoMaximoPermitidoKmH\":0.01,\"horasLibresDeLluviaRequeridas\":1}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"OP_agroquimicoRestrictivoNombre\", \"Insecticida Restrictivo E2E \" + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"OP_agroquimicoRestrictivoId\", b.id);",
+                  "if (pm.response.code === 201) pm.environment.set(\"OP_agroquimicoRestrictivoId\", pm.collectionVariables.get(\"OP_agroquimicoRestrictivoId\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "OP_ - 01.10 [AGR-SEED] Crear fertilizante (para RN-TRA-04)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/agronomia/agroquimicos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombreComercial\":\"{{OP_fertilizanteNombre}}\",\"principioActivo\":\"NPK\",\"tipo\":\"FERTILIZANTE\",\"vientoMaximoPermitidoKmH\":15.0,\"horasLibresDeLluviaRequeridas\":4}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"OP_fertilizanteNombre\", \"Fertilizante E2E \" + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"OP_fertilizanteId\", b.id);",
+                  "if (pm.response.code === 201) pm.environment.set(\"OP_fertilizanteId\", pm.collectionVariables.get(\"OP_fertilizanteId\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "OP_ - 01.11 [AGR-SEED] Crear fungicida (para RN-TRA-04)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/agronomia/agroquimicos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombreComercial\":\"{{OP_fungicidaNombre}}\",\"principioActivo\":\"Azoxistrobina\",\"tipo\":\"FUNGICIDA\",\"vientoMaximoPermitidoKmH\":15.0,\"horasLibresDeLluviaRequeridas\":4}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"OP_fungicidaNombre\", \"Fungicida E2E \" + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"OP_fungicidaId\", b.id);",
+                  "if (pm.response.code === 201) pm.environment.set(\"OP_fungicidaId\", pm.collectionVariables.get(\"OP_fungicidaId\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "OP_ - 01.12 [AGR-SEED] Crear tratamiento Soja + insecticida permisivo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/agronomia/tratamientos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"plagaId\":{{OP_plagaId}},\"agroquimicoId\":{{OP_agroquimicoId}},\"cultivoId\":{{OP_cultivoId}},\"dosisPorHectarea\":0.5,\"unidadMedida\":\"Litros/ha\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"OP_tratamientoId\", b.id);",
+                  "pm.test(\"tratamiento con limites del agroquimico\", () => {",
+                  "  pm.expect(b.agroquimico && b.agroquimico.vientoMaximoPermitidoKmH).to.eql(999);",
+                  "});",
+                  "if (pm.response.code === 201) pm.environment.set(\"OP_tratamientoId\", pm.collectionVariables.get(\"OP_tratamientoId\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "OP_ - 01.13 [AGR-SEED] Crear tratamiento Soja + insecticida restrictivo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/agronomia/tratamientos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"plagaId\":{{OP_plagaId}},\"agroquimicoId\":{{OP_agroquimicoRestrictivoId}},\"cultivoId\":{{OP_cultivoId}},\"dosisPorHectarea\":0.5,\"unidadMedida\":\"Litros/ha\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"OP_tratamientoRestrictivoId\", b.id);",
+                  "if (pm.response.code === 201) pm.environment.set(\"OP_tratamientoRestrictivoId\", pm.collectionVariables.get(\"OP_tratamientoRestrictivoId\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "OP_ - 01.14 [AGR-SEED] Crear tratamiento Maiz + insecticida permisivo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/agronomia/tratamientos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"plagaId\":{{OP_plagaId}},\"agroquimicoId\":{{OP_agroquimicoId}},\"cultivoId\":{{OP_cultivoMaizId}},\"dosisPorHectarea\":0.5,\"unidadMedida\":\"Litros/ha\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"OP_tratamientoMaizId\", b.id);",
+                  "if (pm.response.code === 201) pm.environment.set(\"OP_tratamientoMaizId\", pm.collectionVariables.get(\"OP_tratamientoMaizId\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "OP_ - 04.01 [LAB-01/02+] Crear plan de siembra en lote sin coordenadas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/proyectos/planes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"campoId\":{{OP_campoId}},\"loteId\":{{OP_loteSinCoordsId}},\"cultivoId\":{{OP_cultivoId}},\"fechaSiembraPrevista\":\"{{fechaSiembra}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get(\"fechaSiembra\")) { const d = new Date(); d.setDate(d.getDate() + 7); pm.collectionVariables.set(\"fechaSiembra\", d.toISOString().slice(0,10)); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set(\"OP_planId\", b.id);",
+                  "b.labores.forEach(l => {",
+                  "  if (l.nombre === \"Arar\") pm.collectionVariables.set(\"OP_laborArarId\", l.id);",
+                  "  if (l.nombre === \"Sembrar\") pm.collectionVariables.set(\"OP_laborSembrarId\", l.id);",
+                  "  if (l.nombre === \"Fumigar\") pm.collectionVariables.set(\"OP_laborFumigarId\", l.id);",
+                  "  if (l.nombre === \"Cosechar\") pm.collectionVariables.set(\"OP_laborCosecharId\", l.id);",
+                  "});",
+                  "pm.test(\"plan PLANIFICADO con 4 labores\", () => {",
+                  "  pm.expect(b.estado).to.eql(\"PLANIFICADO\");",
+                  "  pm.expect(b.labores.length).to.eql(4);",
+                  "  pm.expect(b.cultivoNombre).to.eql(pm.collectionVariables.get(\"OP_cultivoNombre\"));",
+                  "});",
+                  "if (pm.response.code === 201) pm.environment.set(\"OP_planId\", pm.collectionVariables.get(\"OP_planId\"));",
+                  "if (pm.response.code === 201) pm.environment.set(\"OP_laborArarId\", pm.collectionVariables.get(\"OP_laborArarId\"));",
+                  "if (pm.response.code === 201) pm.environment.set(\"OP_laborSembrarId\", pm.collectionVariables.get(\"OP_laborSembrarId\"));",
+                  "if (pm.response.code === 201) pm.environment.set(\"OP_laborFumigarId\", pm.collectionVariables.get(\"OP_laborFumigarId\"));",
+                  "if (pm.response.code === 201) pm.environment.set(\"OP_laborCosecharId\", pm.collectionVariables.get(\"OP_laborCosecharId\"));",
+                  "pm.environment.set(\"OP_cultivoNombre\", pm.collectionVariables.get(\"OP_cultivoNombre\"));"
                 ]
               }
             }
